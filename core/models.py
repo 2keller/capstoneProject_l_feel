@@ -1,15 +1,19 @@
 from django.db import models
 
+from django.contrib.auth.models import AbstractUser
 
-# Create your models here.
-class User(models.Model):
-    username = models.CharField(max_length=100)
-    password = models.CharField(max_length=100)
-    email = models.EmailField()
+    
+
+class User(AbstractUser):
+    email = models.EmailField(unique=True)
+    bio = models.CharField(max_length=50)
 
     def __str__(self):
         return self.username
     
+
+
+
 emotion_type = [
     ('happy', 'happy'),
     ('sad', 'sad'),
