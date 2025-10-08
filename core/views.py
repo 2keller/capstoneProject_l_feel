@@ -14,35 +14,6 @@ from django.contrib.auth.forms import AuthenticationForm
 
 
 
-#login views and user registartion views 
-def register(request):
-    if request.method == 'POST':
-        if form.is_valid():
-            form.save()
-            username = form.cleaned_data.get('username')
-            email = form.cleaned_data.get('email')
-
-            return redirect('login')
-    else:
-        return render(request, 'core/register.html', {'form': form, 'title': 'register here'})
-
-
-def Login(request):
-    if request.method == 'POST':
-
-        username = request.POST['username']
-        password = request.POST['password']
-        User = authenticate(request, username = username, password = password)
-        if User is not None:
-            form = login(request, User)
-
-            return redirect('feed.html')
-        else:
-            #message
-            form = AuthenticationForm
-            return render(request, 'login.html', {'form':form})
-
-
 
 
 
