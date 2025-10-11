@@ -1,4 +1,4 @@
-{% {% extends "base.html" %}%}
+{% extends "base.html" %}
 
 {% block title %}HOME{% endblock %}
 
@@ -11,7 +11,7 @@ HI {{user.username}}
 </form>
 {% else %}
 <p>you are not logged in</p>
-<a href='{% url 'login'}' >log in</a>
+<a href='{% templates/registration/login.html 'login'}' >log in</a>
 
 {% endif %}
 
