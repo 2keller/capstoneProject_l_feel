@@ -1,38 +1,109 @@
-
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
 from django.urls import reverse_lazy
-from .forms import UserRegistration, ProfileForm
-from .models import Post
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
+from .forms import UserRegistration, PostForm, CommentForm
+from .models import Post, Profile, Comment, Like, Dislike
+from django.views.generic import UpdateView
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 class SignUpView(View):
     template_name = 'registration/signup.html'
     success_url = reverse_lazy('login')
 
     def get(self, request):
-        user_form = UserRegistration()
-        profile_form = ProfileForm()
-        return render(request, self.template_name, {
-            'user_form': user_form,
-            'profile_form': profile_form,
-        })
+        form = UserRegistration()
+        return render(request, self.template_name, {'form': form})
 
     def post(self, request):
-        user_form = UserRegistration(request.POST)
-        profile_form = ProfileForm(request.POST)
+        form = UserRegistration(request.POST)
+        if form.is_valid():
+            user = form.save(commit=False)
+            user.email = form.cleaned_data['email']
+            user.save()
 
-        if user_form.is_valid() and profile_form.is_valid():
-            user = user_form.save()
-            profile = profile_form.save(commit=False)
-            profile.user = user
-            profile.save()
+            # Automatically create profile
+            Profile.objects.create(
+                user=user,
+                name=form.cleaned_data['name'],
+                surname=form.cleaned_data['surname'],
+                email=form.cleaned_data['email']
+            )
+
             return redirect(self.success_url)
 
-        return render(request, self.template_name, {
-            'user_form': user_form,
-            'profile_form': profile_form,
-        })
+        return render(request, self.template_name, {'form': form})
 
+
+@login_required
 def feed(request):
-    post = Post.objects.all()
-    return render(request, "feed.html", {'post': post})
+    posts = Post.objects.all()
+    form = PostForm()
+    comment_form = CommentForm()
+
+    if request.method == 'POST':
+        form = PostForm(request.POST)
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.user = request.user
+            post.save()
+            return redirect('feed')
+
+    return render(request, "core/feed.html", {
+        'posts': posts,
+        'form': form,
+        'comment_form': comment_form
+    })
+
+
+@login_required
+def comment_post(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    if request.method == 'POST':
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.user = request.user
+            comment.post = post
+            comment.save()
+    return redirect('feed')
+
+
+@login_required
+def like_post(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    existing_like = Like.objects.filter(user=request.user, post=post)
+    if not existing_like.exists():
+        # Remove dislike if it exists
+        Dislike.objects.filter(user=request.user, post=post).delete()
+        Like.objects.create(user=request.user, post=post)
+    return redirect('feed')
+
+
+@login_required
+def dislike_post(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    existing_dislike = Dislike.objects.filter(user=request.user, post=post)
+    if not existing_dislike.exists():
+        # Remove like if it exists
+        Like.objects.filter(user=request.user, post=post).delete()
+        Dislike.objects.create(user=request.user, post=post)
+    return redirect('feed')
+
+class EditPostView(LoginRequiredMixin, UpdateView):
+    model = Post
+    form_class = PostForm
+    template_name = 'edit_post.html'
+    success_url = reverse_lazy('feed')
+
+    def get_queryset(self):
+        return Post.objects.filter(user=self.request.user)
+
+class DeletePostView(LoginRequiredMixin, View):
+    success_url = reverse_lazy('feed')
+
+    def post(self, request, pk):
+        post = get_object_or_404(Post, pk=pk, user=request.user)
+        post.delete()
+        return redirect(self.success_url)

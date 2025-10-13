@@ -3,16 +3,19 @@
 {% block title %}HOME{% endblock %}
 
 {% block content %}
+<h2>Welcome to I Feel</h2>
+<p>A place to share your thoughts and emotions with the community.</p>
+
 {% if user.is_authenticated %}
-HI {{user.username}}
-<form  action="{%url 'logout' %}" method='post'>
-    {%csrf_token%}
-    <button type='submit'>LOGOUT</button>
-</form>
+  <p>Hi {{ user.username }}!</p>
+  <a href="{% url 'feed' %}">Go to Feed</a>
+  <form action="{% url 'logout' %}" method="post" style="margin-top: 10px;">
+    {% csrf_token %}
+    <button type="submit">Logout</button>
+  </form>
 {% else %}
-<p>you are not logged in</p>
-<a href='{% templates/registration/login.html 'login'}' >log in</a>
-
+  <p>You are not logged in.</p>
+  <a href="{% url 'login' %}">Log in</a> |
+  <a href="{% url 'signup' %}">Sign up</a>
 {% endif %}
-
 {% endblock %}
