@@ -1,16 +1,39 @@
+{% load static %}
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>{%block title%}welcome to l feel a place to share{% endblock %}</title>
-
-    <body>
-        <main>
-            {% block content %}
-
-            {% endblock %}
-        </main>
-    </body>
-
+    <title>{% block title %}Welcome to I Feel — a place to share{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="{% static 'images/favicon.ico' %}">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 </head>
+<body>
+    <header>
+        <h1>I Feel</h1>
+        <nav>
+            {% if user.is_authenticated %}
+                <span>Welcome, {{ user.username }}!</span>
+                <a href="{% url 'feed' %}">Feed</a>
+                <form action="{% url 'logout' %}" method="post" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit">Logout</button>
+                </form>
+            {% else %}
+                <a href="{% url 'signup' %}">Sign Up</a>
+                <a href="{% url 'login' %}">Login</a>
+                <a href="{% url 'feed' %}">Feed</a>
+            {% endif %}
+        </nav>
+    </header>
+
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <footer>
+        <p>&copy; 2025 I Feel. All rights reserved.</p>
+    </footer>
+</body>
+</html>
