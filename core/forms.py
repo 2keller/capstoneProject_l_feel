@@ -5,8 +5,7 @@ from .models import Post, Comment
 
 class UserRegistration(UserCreationForm):
     email = forms.EmailField(required=True)
-    name = forms.CharField(max_length=20)
-    surname = forms.CharField(max_length=20)
+
 
     class Meta:
         model = User
