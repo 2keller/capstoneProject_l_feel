@@ -7,6 +7,11 @@ from .forms import UserRegistration, PostForm, CommentForm
 from .models import Post, Profile, Comment, Like, Dislike
 from django.views.generic import UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin
+import logging
+from django.contrib.auth import login
+
+
+logger = logging.getLogger(__name__)
 
 class SignUpView(View):
     template_name = 'registration/signup.html'
@@ -44,9 +49,12 @@ class SignUpView(View):
                     email=form.cleaned_data['email']
                 )
 
-                return redirect(self.success_url)
+                
+                login(request, user)
+                return redirect('home')
             except Exception as e:
-                print("failed to sign up:", e)
+                logger.error("Signup failed: %s", e)
+                form.add_error(None, "Something went wrong. Please try again later.")
 
         return render(request, self.template_name, {'form': form})
 
