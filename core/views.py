@@ -46,7 +46,7 @@ class SignUpView(View):
 
                 return redirect(self.success_url)
             except Exception as e:
-                print("failed to redirect the user after signup:", e)
+                print("failed to sign up:", e)
 
         return render(request, self.template_name, {'form': form})
 
