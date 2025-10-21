@@ -4,13 +4,21 @@ from django.contrib.auth.forms import UserCreationForm
 from .models import Post, Comment
 
 class UserRegistration(UserCreationForm):
+    name = forms.CharField(max_length=50, required=True)
+    surname = forms.CharField(max_length=50, required=True)
     email = forms.EmailField(required=True)
 
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'password1', 'password2']
+        fields = ['username', 'name', 'surname', 'email', 'password1', 'password2']
         # name and surname are handled manually in the view
+
+    def clean_mail(self):
+        email = self.cleaned_data.get('email')
+        if User.objects.filter(email=email).exists():
+            raise forms.ValidationError("This email is already in use.")
+        return email
 
 class PostForm(forms.ModelForm):
     class Meta:
