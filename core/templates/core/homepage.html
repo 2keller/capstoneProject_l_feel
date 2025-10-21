@@ -3,19 +3,29 @@
 {% block title %}HOME{% endblock %}
 
 {% block content %}
-<h2>Welcome to I Feel</h2>
-<p>A place to share your thoughts and emotions with the community.</p>
+<div class="form-container">
+  <h2 class="form-title">Welcome to I Feel</h2>
+  <p class="text-center">A place to share your thoughts and emotions with the community.</p>
 
-{% if user.is_authenticated %}
-  <p>Hi {{ user.username }}!</p>
-  <a href="{% url 'feed' %}">Go to Feed</a>
-  <form action="{% url 'logout' %}" method="post" style="margin-top: 10px;">
-    {% csrf_token %}
-    <button type="submit">Logout</button>
-  </form>
-{% else %}
-  <p>You are not logged in.</p>
-  <a href="{% url 'login' %}">Log in</a> |
-  <a href="{% url 'signup' %}">Sign up</a>
-{% endif %}
+  {% if user.is_authenticated %}
+    <p class="text-center" style="margin-top:1rem;">Hi <strong>{{ user.username }}</strong>!</p>
+    
+    <div class="text-center" style="margin-top:1.5rem;">
+      <a href="{% url 'feed' %}" class="btn-primary">Go to Feed</a>
+    </div>
+
+    <form action="{% url 'logout' %}" method="post" style="margin-top:1rem; text-align:center;">
+      {% csrf_token %}
+      <button type="submit" class="btn-primary">Logout</button>
+    </form>
+    
+  {% else %}
+    <p class="text-center" style="margin-top:1rem;">You are not logged in.</p>
+    
+    <div class="text-center" style="margin-top:1rem;">
+      <a href="{% url 'login' %}" class="btn-primary" style="margin-right:0.5rem;">Log In</a>
+      <a href="{% url 'signup' %}" class="btn-primary">Sign Up</a>
+    </div>
+  {% endif %}
+</div>
 {% endblock %}
