@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}HOME{% endblock %}
+{% block title %}Home | Profile{% endblock %}
 
 {% block content %}
 <div class="form-container">
@@ -9,19 +9,39 @@
 
   {% if user.is_authenticated %}
     <p class="text-center" style="margin-top:1rem;">Hi <strong>{{ user.username }}</strong>!</p>
-    
-    <div class="text-center" style="margin-top:1.5rem;">
-      <a href="{% url 'feed' %}" class="btn-primary">Go to Feed</a>
+
+    <!-- Profile Information -->
+    <div class="profile-info" style="margin-top: 1.5rem; text-align:center; padding:1rem; border:1px solid #ccc; border-radius:8px; background-color:#f9f9f9;">
+      <h3>Your Profile</h3>
+      <p><strong>Username:</strong> {{ user.username }}</p>
+      <p><strong>Email:</strong> {{ user.email }}</p>
+      {% if user.profile.bio %}
+        <p><strong>Bio:</strong> {{ user.profile.bio }}</p>
+      {% endif %}
+      {% if user.profile.avatar %}
+        <p><strong>Avatar:</strong></p>
+        <img src="{{ user.profile.avatar.url }}" alt="Avatar" style="width:100px; height:100px; border-radius:50%;">
+      {% endif %}
+      {% if user.profile.date_of_birth %}
+        <p><strong>Date of Birth:</strong> {{ user.profile.date_of_birth }}</p>
+      {% endif %}
     </div>
 
+    <!-- Navigation buttons -->
+    <div class="text-center" style="margin-top:1.5rem;">
+      <a href="{% url 'feed' %}" class="btn-primary" style="margin-right:0.5rem;">Go to Feed</a>
+      <a href="{% url 'edit_profile' %}" class="btn-primary">Edit Profile</a>
+    </div>
+
+    <!-- Logout button -->
     <form action="{% url 'logout' %}" method="post" style="margin-top:1rem; text-align:center;">
       {% csrf_token %}
       <button type="submit" class="btn-primary">Logout</button>
     </form>
-    
+
   {% else %}
     <p class="text-center" style="margin-top:1rem;">You are not logged in.</p>
-    
+
     <div class="text-center" style="margin-top:1rem;">
       <a href="{% url 'login' %}" class="btn-primary" style="margin-right:0.5rem;">Log In</a>
       <a href="{% url 'signup' %}" class="btn-primary">Sign Up</a>
@@ -29,3 +49,4 @@
   {% endif %}
 </div>
 {% endblock %}
+

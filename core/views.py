@@ -11,6 +11,7 @@ import logging
 from django.contrib.auth import login
 
 
+
 logger = logging.getLogger(__name__)
 
 class SignUpView(View):
