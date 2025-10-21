@@ -107,3 +107,7 @@ class DeletePostView(LoginRequiredMixin, View):
         post = get_object_or_404(Post, pk=pk, user=request.user)
         post.delete()
         return redirect(self.success_url)
+class ProfileView(LoginRequiredMixin, View):
+    template_name = 'core/profile.html'
+
+    
