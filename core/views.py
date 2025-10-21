@@ -40,8 +40,7 @@ class SignUpView(View):
             # Automatically create profile
                 Profile.objects.create(
                     user=user,
-                    name=form.cleaned_data['name'],
-                    surname=form.cleaned_data['surname'],
+                    username = form.cleaned_data['username'],
                     email=form.cleaned_data['email']
                 )
 
