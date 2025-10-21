@@ -19,19 +19,35 @@ class SignUpView(View):
     def post(self, request):
         form = UserRegistration(request.POST)
         if form.is_valid():
-            user = form.save(commit=False)
-            user.email = form.cleaned_data['email']
-            user.save()
+            try:
+                User.objects.get(email=form.cleaned_data['email'])
+                form.add_error('email', 'This email is already in use.')
+                return render(request, self.template_name, {'form': form})
+            except User.DoesNotExist:
+                pass
+
+            try:
+                User.objects.get(username=form.cleaned_data['username'])
+                form.add_error('username', 'This username is already taken.')
+                return render(request, self.template_name, {'form': form})
+            except User.DoesNotExist:
+                pass
+            try:
+                user = form.save(commit=False)
+                user.email = form.cleaned_data['email']
+                user.save()
 
             # Automatically create profile
-            Profile.objects.create(
-                user=user,
-                name=form.cleaned_data['name'],
-                surname=form.cleaned_data['surname'],
-                email=form.cleaned_data['email']
-            )
+                Profile.objects.create(
+                    user=user,
+                    name=form.cleaned_data['name'],
+                    surname=form.cleaned_data['surname'],
+                    email=form.cleaned_data['email']
+                )
 
-            return redirect(self.success_url)
+                return redirect(self.success_url)
+            except Exception as e:
+                print("failed to redirect the user after signup:", e)
 
         return render(request, self.template_name, {'form': form})
 
