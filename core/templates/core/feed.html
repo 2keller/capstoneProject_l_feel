@@ -1,23 +1,9 @@
 {% extends "base.html" %}
 
-{% block title %}FEED{% endblock %}
+{% block title %}Feed{% endblock %}
 
 {% block content %}
 <h2>Community Feed</h2>
-
-{% if user.is_authenticated %}
-  <p>Welcome back, {{ user.username }}!</p>
-
-  <div class="create-post">
-    <h3>Share something with the community</h3>
-    <form method="post">
-      {% csrf_token %}
-      {{ form.as_p }}
-      <button type="submit">📢 Post</button>
-    </form>
-  </div>
-  <hr>
-{% endif %}
 
 {% for post in posts %}
   <div class="post">
@@ -26,53 +12,58 @@
     <p><em>Emotion: {{ post.emotion_type }}</em></p>
     <p><small>Posted on {{ post.created_at|date:"M d, Y H:i" }}</small></p>
 
-    {% if user == post.user %}
-      <a href="{% url 'edit_post' post.id %}">✏️ Edit</a>
-      <form action="{% url 'delete_post' post.id %}" method="POST" style="display:inline;">
-        {% csrf_token %}
-        <button type="submit" onclick="return confirm('Delete this post?')">🗑️ Delete</button>
-      </form>
-    {% endif %}
+    <div class="post-actions">
+      {% if user == post.user %}
+        <a href="{% url 'edit_post' post.id %}" class="btn-action">✏️ Edit</a>
+        <form action="{% url 'delete_post' post.id %}" method="POST" style="display:inline;">
+          {% csrf_token %}
+          <button type="submit" class="btn-action" onclick="return confirm('Delete this post?')">🗑️ Delete</button>
+        </form>
+      {% endif %}
 
-    {% if user.is_authenticated %}
-      <form action="{% url 'like_post' post.id %}" method="POST" style="display:inline;">
-        {% csrf_token %}
-        <button type="submit">👍 Like ({{ post.like_set.count }})</button>
-      </form>
-      <form action="{% url 'dislike_post' post.id %}" method="POST" style="display:inline;">
-        {% csrf_token %}
-        <button type="submit">👎 Dislike ({{ post.dislike_set.count }})</button>
-      </form>
-    {% endif %}
+      {% if user.is_authenticated %}
+        <form action="{% url 'like_post' post.id %}" method="POST" style="display:inline;">
+          {% csrf_token %}
+          <button type="submit" class="btn-action like-btn" data-post-id="{{ post.id }}">
+            👍 Like ({{ post.like_set.count }})
+          </button>
+        </form>
+        <form action="{% url 'dislike_post' post.id %}" method="POST" style="display:inline;">
+          {% csrf_token %}
+          <button type="submit" class="btn-action dislike-btn" data-post-id="{{ post.id }}">
+            👎 Dislike ({{ post.dislike_set.count }})
+          </button>
+        </form>
+      {% endif %}
+    </div>
 
-    <div class="comments">
-      <h4>Comments</h4>
+    <button class="toggle-comments-btn" onclick="toggleComments('comments-{{ post.id }}')">
+      💬 Show Comments ({{ post.comment_set.count }})
+    </button>
+
+    <div id="comments-{{ post.id }}" class="comments hidden">
       {% for comment in post.comment_set.all %}
-        <div class="comment">
+        <div class="comment {% if comment.is_supportive %}highlight-support{% endif %}">
           <p><strong>{{ comment.user.username }}</strong>: {{ comment.content }}</p>
-          <p><small>{{ comment.created_at|date:"M d, Y H:i" }} —
+          <p><small>{{ comment.created_at|date:"M d, Y H:i" }} — 
             {% if comment.is_supportive %}Supportive 💚{% else %}Neutral 🤍{% endif %}
           </small></p>
         </div>
       {% empty %}
         <p>No comments yet.</p>
       {% endfor %}
+
+      {% if user.is_authenticated %}
+        <form action="{% url 'comment_post' post.id %}" method="POST" class="comment-form">
+          {% csrf_token %}
+          {{ comment_form.as_p }}
+          <button type="submit" class="btn-primary">💬 Comment</button>
+        </form>
+      {% endif %}
     </div>
-
-    {% if user.is_authenticated %}
-      <form action="{% url 'comment_post' post.id %}" method="POST" class="comment-form">
-        {% csrf_token %}
-        {{ comment_form.as_p }}
-        <button type="submit">💬 Comment</button>
-      </form>
-    {% endif %}
-
-    <hr>
   </div>
 {% empty %}
   <p>No posts yet. Be the first to share!</p>
 {% endfor %}
+
 {% endblock %}
-
-
-
