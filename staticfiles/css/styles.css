@@ -1,4 +1,4 @@
-/* Base Reset */
+/* ================= Base Reset ================= */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -12,7 +12,7 @@ body {
   padding: 1rem;
 }
 
-/* Header & Navigation */
+/* ================= Header & Navigation ================= */
 header {
   background-color: #ffffff;
   padding: 1rem 0;
@@ -43,7 +43,7 @@ nav button:hover, nav a:hover {
   text-decoration: underline;
 }
 
-/* Main Container */
+/* ================= Main Container ================= */
 main {
   max-width: 800px;
   margin: 2rem auto;
@@ -53,7 +53,7 @@ main {
   box-shadow: 0 4px 12px rgba(0,0,0,0.05);
 }
 
-/* Forms */
+/* ================= Forms ================= */
 form input, form textarea, form select {
   width: 100%;
   padding: 0.75rem;
@@ -77,7 +77,71 @@ form button:hover {
   background-color: #357ab8;
 }
 
-/* Posts */
+/* ================= Form Containers (Cards) ================= */
+.form-container {
+  max-width: 450px;
+  margin: 3rem auto;
+  background: #fff;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 6px 14px rgba(0,0,0,0.05);
+}
+
+.form-title {
+  text-align: center;
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: #4a90e2;
+  margin-bottom: 1.5rem;
+}
+
+.form-group {
+  margin-bottom: 1.2rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.4rem;
+  font-weight: 500;
+  color: #333;
+}
+
+.field-error {
+  color: #d9534f;
+  font-size: 0.9rem;
+  margin-top: 0.3rem;
+}
+
+.form-footer {
+  text-align: center;
+  margin-top: 1.5rem;
+  color: #555;
+}
+
+.form-footer a {
+  color: #4a90e2;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.form-footer a:hover {
+  text-decoration: underline;
+}
+
+/* ================= Error Messages ================= */
+.error-messages {
+  background-color: #ffe6e6;
+  border: 1px solid #ff9999;
+  padding: 1rem;
+  border-radius: 6px;
+  margin-top: 1rem;
+}
+
+.error-messages ul {
+  padding-left: 1.2rem;
+}
+
+/* ================= Posts ================= */
 .post {
   background-color: #fefefe;
   border: 1px solid #e0e0e0;
@@ -85,6 +149,11 @@ form button:hover {
   padding: 1rem;
   margin-bottom: 2rem;
   box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+  transition: transform 0.2s ease;
+}
+
+.post:hover {
+  transform: translateY(-2px);
 }
 
 .post p {
@@ -95,16 +164,48 @@ form button:hover {
   color: #888;
 }
 
-/* Emotion Tags */
 .post em::before {
   content: "💬 ";
 }
 
-/* Comments */
+/* ================= Post Actions ================= */
+.btn-action {
+  background-color: #f0f4f8;
+  color: #4a90e2;
+  border: 1px solid #4a90e2;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  font-weight: 500;
+  margin-right: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-action:hover {
+  background-color: #4a90e2;
+  color: #fff;
+}
+
+/* Highlight Most Liked Posts */
+.post-most-liked {
+  border: 2px solid #4a90e2;
+  background-color: #f0f8ff;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+}
+
+/* ================= Comments ================= */
 .comments {
   margin-top: 1rem;
   padding-left: 1rem;
   border-left: 3px solid #e0e0e0;
+  transition: max-height 0.3s ease, opacity 0.3s ease;
+  overflow: hidden;
+}
+
+.comments.hidden {
+  max-height: 0;
+  opacity: 0;
+  display: none;
 }
 
 .comment {
@@ -121,20 +222,27 @@ form button:hover {
   color: #666;
 }
 
-/* Error Messages */
-.error-messages {
-  background-color: #ffe6e6;
-  border: 1px solid #ff9999;
-  padding: 1rem;
+/* Highlight Supportive Comments */
+.highlight-support {
+  border-left: 4px solid #4a90e2;
+  background-color: #e6f0ff;
+  padding-left: 0.5rem;
   border-radius: 6px;
-  margin-top: 1rem;
 }
 
-.error-messages ul {
-  padding-left: 1.2rem;
+/* Comment Form Button */
+.comment-form button {
+  margin-top: 0.5rem;
 }
 
-/* Footer */
+/* Create Post Section */
+.create-post h3 {
+  margin-bottom: 0.5rem;
+  font-size: 1.2rem;
+  color: #4a90e2;
+}
+
+/* ================= Footer ================= */
 footer {
   text-align: center;
   margin-top: 2rem;
@@ -142,7 +250,7 @@ footer {
   color: #999;
 }
 
-/* Responsive */
+/* ================= Responsive ================= */
 @media (max-width: 600px) {
   main {
     padding: 1rem;
