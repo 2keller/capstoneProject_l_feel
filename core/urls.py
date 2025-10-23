@@ -1,5 +1,6 @@
 from django.urls import path
 from django.contrib.auth import views as auth_views
+from django.views.generic import TemplateView
 from .views import (
     SignUpView,
     feed,
@@ -11,6 +12,7 @@ from .views import (
 )
 
 urlpatterns = [
+    path('', TemplateView.as_view(template_name='core/homepage.html'), name='home'),
     # Auth routes
     path('signup/', SignUpView.as_view(), name='signup'),
     path('login/', auth_views.LoginView.as_view(template_name='registration/login.html'), name='login'),
@@ -23,4 +25,6 @@ urlpatterns = [
     path('post/<int:post_id>/dislike/', dislike_post, name='dislike_post'),
     path('post/<int:pk>/edit/', EditPostView.as_view(), name='edit_post'),
     path('post/<int:pk>/delete/', DeletePostView.as_view(), name='delete_post'),
+
+
 ]
