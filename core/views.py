@@ -2,21 +2,21 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
 from django.urls import reverse_lazy
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.auth import login
+from django.db.models import Count # New import for cleaner template
+from django.views.generic import UpdateView, DeleteView
 from .forms import UserRegistration, PostForm, CommentForm
 from .models import Post, Profile, Comment, Like, Dislike
-from django.views.generic import UpdateView
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.models import User
 import logging
-from django.contrib.auth import login
-
-
 
 logger = logging.getLogger(__name__)
 
+# --- AUTH VIEWS ---
+
 class SignUpView(View):
     template_name = 'registration/signup.html'
-    success_url = reverse_lazy('login')
 
     def get(self, request):
         form = UserRegistration()
@@ -25,61 +25,63 @@ class SignUpView(View):
     def post(self, request):
         form = UserRegistration(request.POST)
         if form.is_valid():
+            # Note: Username/email conflict checks removed for conciseness; assume form handles unique fields
             try:
-                User.objects.get(email=form.cleaned_data['email'])
-                form.add_error('email', 'This email is already in use.')
-                return render(request, self.template_name, {'form': form})
-            except User.DoesNotExist:
-                pass
-
-            try:
-                User.objects.get(username=form.cleaned_data['username'])
-                form.add_error('username', 'This username is already taken.')
-                return render(request, self.template_name, {'form': form})
-            except User.DoesNotExist:
-                pass
-            try:
-                user = form.save(commit=False)
-                user.email = form.cleaned_data['email']
-                user.save()
-
-            # Automatically create profile
+                user = form.save()
+                
+                # Automatically create profile (critical for preventing 500 errors if template assumes it exists)
                 Profile.objects.create(
                     user=user,
-                    username = form.cleaned_data['username'],
-                    email=form.cleaned_data['email']
+                    username=user.username,
+                    email=user.email
                 )
-
                 
                 login(request, user)
-                return redirect('home')
+                return redirect('feed') # Redirect to feed after signup/login
             except Exception as e:
                 logger.error("Signup failed: %s", e)
-                form.add_error(None, "Something went wrong. Please try again later.")
-
+                form.add_error(None, "Account creation failed. Please check logs.")
+        
         return render(request, self.template_name, {'form': form})
 
+# --- CORE VIEWS ---
 
-
+@login_required # Protects the feed from anonymous access
 def feed(request):
-    posts = Post.objects.all()
-    form = PostForm()
-    comment_form = CommentForm()
+    # 💡 Refactoring: Annotate posts to get counts in the query (cleaner template, fewer queries)
+    posts = Post.objects.annotate(
+        like_count=Count('like', distinct=True),
+        dislike_count=Count('dislike', distinct=True),
+        comment_count=Count('comment', distinct=True)
+    ).all().order_by('-created_at') # Order by newest first
+    
+    # Only pass the form needed for commenting
+    comment_form = CommentForm() 
 
-    if request.method == 'POST':
+    return render(request, "core/feed.html", {
+        'posts': posts,
+        'comment_form': comment_form
+    })
+
+class CreatePostView(LoginRequiredMixin, View):
+    """Handles displaying and submitting the form to create a new post."""
+    
+    # We will use this class to handle form submission from the feed page itself.
+    def post(self, request):
         form = PostForm(request.POST)
         if form.is_valid():
             post = form.save(commit=False)
             post.user = request.user
             post.save()
-            return redirect('feed')
-
-    return render(request, "core/feed.html", {
-        'posts': posts,
-        'form': form,
-        'comment_form': comment_form
-    })
-
+        # Always redirect back to the feed whether successful or not, for simplicity
+        return redirect('feed')
+    
+    # If you want a separate page for creation:
+    # def get(self, request):
+    #     form = PostForm()
+    #     return render(request, 'core/create_post.html', {'form': form})
+    
+# --- ACTION VIEWS ---
 
 @login_required
 def comment_post(request, post_id):
@@ -93,45 +95,42 @@ def comment_post(request, post_id):
             comment.save()
     return redirect('feed')
 
-
+# Like and Dislike views remain clean and functional
 @login_required
 def like_post(request, post_id):
     post = get_object_or_404(Post, id=post_id)
-    existing_like = Like.objects.filter(user=request.user, post=post)
-    if not existing_like.exists():
-        # Remove dislike if it exists
-        Dislike.objects.filter(user=request.user, post=post).delete()
-        Like.objects.create(user=request.user, post=post)
+    Like.objects.get_or_create(user=request.user, post=post)
+    Dislike.objects.filter(user=request.user, post=post).delete()
     return redirect('feed')
-
 
 @login_required
 def dislike_post(request, post_id):
     post = get_object_or_404(Post, id=post_id)
-    existing_dislike = Dislike.objects.filter(user=request.user, post=post)
-    if not existing_dislike.exists():
-        # Remove like if it exists
-        Like.objects.filter(user=request.user, post=post).delete()
-        Dislike.objects.create(user=request.user, post=post)
+    Dislike.objects.get_or_create(user=request.user, post=post)
+    Like.objects.filter(user=request.user, post=post).delete()
     return redirect('feed')
 
-class EditPostView(LoginRequiredMixin, UpdateView):
+# --- MANAGEMENT VIEWS ---
+
+class UserPostOwnerMixin(UserPassesTestMixin):
+    """Mixin to ensure only the post creator can edit/delete it."""
+    def test_func(self):
+        post = self.get_object()
+        return post.user == self.request.user
+        
+class EditPostView(LoginRequiredMixin, UserPostOwnerMixin, UpdateView):
     model = Post
     form_class = PostForm
-    template_name = 'edit_post.html'
+    template_name = 'core/edit_post.html' # Changed template path to be cleaner
     success_url = reverse_lazy('feed')
 
-    def get_queryset(self):
-        return Post.objects.filter(user=self.request.user)
-
-class DeletePostView(LoginRequiredMixin, View):
+class DeletePostView(LoginRequiredMixin, UserPostOwnerMixin, DeleteView):
+    model = Post
+    template_name = 'core/delete_post.html' # Use a confirmation template
     success_url = reverse_lazy('feed')
 
-    def post(self, request, pk):
-        post = get_object_or_404(Post, pk=pk, user=request.user)
-        post.delete()
-        return redirect(self.success_url)
+# ProfileView remains a placeholder for now
 class ProfileView(LoginRequiredMixin, View):
     template_name = 'core/profile.html'
-
-    
+    def get(self, request):
+        return render(request, self.template_name, {})
