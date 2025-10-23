@@ -1,77 +1,46 @@
 {% extends "base.html" %}
 
-{% block title %}Feed{% endblock %}
+{% block title %}Community Feed{% endblock %}
 
 {% block content %}
 <h2>Community Feed</h2>
 
 {% if user.is_authenticated %}
-  <a href="{% url 'create_post' %}" class="btn-primary" style="margin-bottom: 1rem; display:inline-block;">
-    ➕ Add New Post
-  </a>
+    <form action="{% url 'create_post' %}" method="POST" style="margin-bottom: 1.5rem; padding: 15px; border: 1px solid #eee;">
+        {% csrf_token %}
+        <h3>Share Your Thoughts</h3>
+        {{ form.as_p }} <button type="submit" class="btn-primary">➕ Post</button>
+    </form>
 {% else %}
-  <p><a href="{% url 'login' %}">Log in</a> to share your thoughts!</p>
+    <p><a href="{% url 'login' %}">Log in</a> to share your thoughts!</p>
 {% endif %}
 
 {% for post in posts %}
-  <div class="post">
-    <p><strong>{{ post.user.username }}</strong> shared:</p>
-    <p>{{ post.content }}</p>
-    <p><em>Emotion: {{ post.emotion_type }}</em></p>
-    <p><small>Posted on {{ post.created_at|date:"M d, Y H:i" }}</small></p>
-
-    <div class="post-actions">
-      {% if user == post.user %}
-        <a href="{% url 'edit_post' post.id %}" class="btn-action">✏️ Edit</a>
-        <form action="{% url 'delete_post' post.id %}" method="POST" style="display:inline;">
-          {% csrf_token %}
-          <button type="submit" class="btn-action" onclick="return confirm('Delete this post?')">🗑️ Delete</button>
-        </form>
-      {% endif %}
-
-      {% if user.is_authenticated %}
-        <form action="{% url 'like_post' post.id %}" method="POST" style="display:inline;">
-          {% csrf_token %}
-          <button type="submit" class="btn-action like-btn" data-post-id="{{ post.id }}">
-            👍 Like ({{ post.like_set.count }})
-          </button>
-        </form>
-        <form action="{% url 'dislike_post' post.id %}" method="POST" style="display:inline;">
-          {% csrf_token %}
-          <button type="submit" class="btn-action dislike-btn" data-post-id="{{ post.id }}">
-            👎 Dislike ({{ post.dislike_set.count }})
-          </button>
-        </form>
-      {% endif %}
-    </div>
-
-    <button class="toggle-comments-btn" onclick="toggleComments('comments-{{ post.id }}')">
-      💬 Show Comments ({{ post.comment_set.count }})
-    </button>
-
-    <div id="comments-{{ post.id }}" class="comments hidden">
-      {% for comment in post.comment_set.all %}
-        <div class="comment {% if comment.is_supportive %}highlight-support{% endif %}">
-          <p><strong>{{ comment.user.username }}</strong>: {{ comment.content }}</p>
-          <p><small>{{ comment.created_at|date:"M d, Y H:i" }} — 
-            {% if comment.is_supportive %}Supportive 💚{% else %}Neutral 🤍{% endif %}
-          </small></p>
+    <div class="post">
+        <div class="post-actions">
+            {% if user.is_authenticated %}
+                <form action="{% url 'like_post' post.id %}" method="POST" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-action like-btn">
+                        👍 Like ({{ post.like_count }})
+                    </button>
+                </form>
+                <form action="{% url 'dislike_post' post.id %}" method="POST" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-action dislike-btn">
+                        👎 Dislike ({{ post.dislike_count }})
+                    </button>
+                </form>
+            {% endif %}
         </div>
-      {% empty %}
-        <p>No comments yet.</p>
-      {% endfor %}
 
-      {% if user.is_authenticated %}
-        <form action="{% url 'comment_post' post.id %}" method="POST" class="comment-form">
-          {% csrf_token %}
-          {{ comment_form.as_p }}
-          <button type="submit" class="btn-primary">💬 Comment</button>
-        </form>
-      {% endif %}
-    </div>
-  </div>
+        <button class="toggle-comments-btn" onclick="toggleComments('comments-{{ post.id }}')">
+            💬 Show Comments ({{ post.comment_count }})
+        </button>
+        
+        </div>
 {% empty %}
-  <p>No posts yet. Be the first to share!</p>
+    <p>No posts yet. Be the first to share!</p>
 {% endfor %}
 
 {% endblock %}
