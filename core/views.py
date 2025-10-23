@@ -60,7 +60,7 @@ class SignUpView(View):
         return render(request, self.template_name, {'form': form})
 
 
-@login_required
+
 def feed(request):
     posts = Post.objects.all()
     form = PostForm()
