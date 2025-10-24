@@ -2,11 +2,10 @@ from django.urls import path
 from django.contrib.auth import views as auth_views
 from .views import (
     SignUpView,
-    feed,
+    feed, 
     comment_post,
     like_post,
     dislike_post,
-    #CreatePostView, # New Import
     EditPostView,
     DeletePostView
 )
@@ -17,11 +16,11 @@ urlpatterns = [
     path('login/', auth_views.LoginView.as_view(template_name='registration/login.html'), name='login'),
     path('logout/', auth_views.LogoutView.as_view(next_page='login'), name='logout'),
 
-    # Core app routes
-    path('', feed, name='feed'), # 💡 FIX: Maps root / to the feed view
-
-    # 💡 FIX: Dedicated route for post creation/submission
-    #path('post/create/', CreatePostView.as_view(), name='create_post'),
+  
+    path('', feed, name='home'), 
+    
+    
+    path('feed/', feed, name='feed'), 
 
     path('post/<int:post_id>/comment/', comment_post, name='comment_post'),
     path('post/<int:post_id>/like/', like_post, name='like_post'),
