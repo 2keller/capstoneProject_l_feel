@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-u_-8jwhsb^xs3nv(7wv@-3g%6h1zoe!4e$x05l-pvlcg3(odx7
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ["l-feel.onrender.com", "localhost"]
 
 
 # Application definition
@@ -131,3 +131,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 signup_redirect_url = 'feed'
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'feed'
+
+CSRF_TRUSTED_ORIGINS = ["https://l-feel.onrender.com"]
+
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
