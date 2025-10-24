@@ -1,5 +1,3 @@
-
-
 {% extends "base.html" %}
 
 {% block title %}Home | Profile{% endblock %}
@@ -26,12 +24,9 @@
       <p class="email">{{ user.email }}</p>
 
       {% if user.profile %}
-        {% if user.profile.bio %}
-          <p class="bio">“{{ user.profile.bio }}”</p>
-        {% else %}
-          <p class="bio empty">No bio yet — share how you feel 💭</p>
-        {% endif %}
-
+        <p class="bio {% if not user.profile.bio %}empty{% endif %}">
+          {% if user.profile.bio %}“{{ user.profile.bio }}”{% else %}No bio yet — share how you feel 💭{% endif %}
+        </p>
         {% if user.profile.date_of_birth %}
           <p class="dob">🎂 {{ user.profile.date_of_birth }}</p>
         {% endif %}
@@ -64,3 +59,4 @@
   {% endif %}
 </div>
 {% endblock %}
+

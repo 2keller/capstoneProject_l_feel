@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-{% load static %}
 
 {% block title %}Login{% endblock %}
 
@@ -21,7 +20,12 @@
     {% for field in form %}
       <div class="form-group">
         <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-        {{ field }}
+        <input type="{{ field.field.widget.input_type }}" 
+               name="{{ field.name }}" 
+               id="{{ field.id_for_label }}" 
+               value="{{ field.value|default_if_none:'' }}" 
+               class="form-input"
+               {% if field.field.required %}required{% endif %}>
         {% if field.help_text %}
           <small>{{ field.help_text }}</small>
         {% endif %}
@@ -33,7 +37,7 @@
       </div>
     {% endfor %}
 
-    <button type="submit" class="btn-primary">Log In</button>
+    <button type="submit" class="btn-full btn-primary">Log In</button>
   </form>
 
   <p class="form-footer">
