@@ -3,13 +3,17 @@
 {% block title %}Edit Post{% endblock %}
 
 {% block content %}
-<h2>Edit Your Post</h2>
+<div class="form-container">
+  <h2 class="form-title">Edit Your Post</h2>
 
-<form method="post">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit">💾 Save Changes</button>
-</form>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn primary">💾 Save Changes</button>
+  </form>
 
-<a href="{% url 'feed' %}">← Back to Feed</a>
+  <p class="form-footer">
+    <a href="{% url 'feed' %}">← Back to Feed</a>
+  </p>
+</div>
 {% endblock %}

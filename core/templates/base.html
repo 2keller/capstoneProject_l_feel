@@ -7,125 +7,53 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="{% static 'images/favicon.ico' %}">
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
-    <style>
-      /* Add slight gradient and subtle animation without breaking your CSS */
-      header {
-        background: linear-gradient(90deg, #4a90e2, #6db3f2);
-        color: #fff;
-        text-align: center;
-        padding: 1.5rem 1rem;
-        border-bottom: none;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-      }
-
-      header h1 {
-        font-size: 2rem;
-        letter-spacing: 1px;
-        font-weight: 600;
-      }
-
-      nav {
-        margin-top: 1rem;
-      }
-
-      nav a, nav button {
-        display: inline-block;
-        margin: 0 0.6rem;
-        color: #fff;
-        font-weight: 500;
-        background: rgba(255, 255, 255, 0.15);
-        padding: 0.4rem 0.8rem;
-        border-radius: 6px;
-        transition: all 0.3s ease;
-        text-decoration: none;
-        border: none;
-      }
-
-      nav a:hover, nav button:hover {
-        background: rgba(255, 255, 255, 0.3);
-        text-decoration: none;
-      }
-
-      main {
-        max-width: 900px;
-        margin: 3rem auto;
-        background: #fff;
-        padding: 2rem;
-        border-radius: 16px;
-        box-shadow: 0 8px 20px rgba(0,0,0,0.05);
-        animation: fadeIn 0.5s ease-in-out;
-      }
-
-      @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
-      }
-
-      footer {
-        text-align: center;
-        margin-top: 3rem;
-        font-size: 0.9rem;
-        color: #777;
-      }
-
-      @media (max-width: 600px) {
-        header h1 {
-          font-size: 1.6rem;
-        }
-
-        nav a, nav button {
-          margin: 0.3rem 0.2rem;
-          padding: 0.4rem 0.6rem;
-          font-size: 0.9rem;
-        }
-
-        main {
-          margin: 1.5rem 0.5rem;
-          padding: 1rem;
-        }
-      }
-    </style>
 </head>
 <body>
-    <header>
-        <h1>I Feel</h1>
-        <nav>
+    <!-- ========== HEADER ========== -->
+    <header class="social-header">
+        <div class="header-left">
+            <h1 class="logo">I Feel</h1>
+            <p class="header-tagline">🌍 One World, Different Feelings</p>
+        </div>
+        <nav class="header-nav">
             {% if user.is_authenticated %}
-                <span>👋 Hello, {{ user.username }}!</span>
-                <a href="{% url 'feed' %}">Feed</a>
-                <form action="{% url 'logout' %}" method="post" style="display:inline;">
+                <span class="greeting">👋 Hi, {{ user.username }}!</span>
+                <a href="{% url 'feed' %}" class="nav-link">Feed</a>
+                <form action="{% url 'logout' %}" method="post" class="inline-form">
                     {% csrf_token %}
-                    <button type="submit">Logout</button>
+                    <button type="submit" class="nav-button logout-button">Logout</button>
                 </form>
             {% else %}
-                <a href="{% url 'signup' %}">Sign Up</a>
-                <a href="{% url 'login' %}">Login</a>
-                <a href="{% url 'feed' %}">Feed</a>
+                <a href="{% url 'signup' %}" class="nav-link">Sign Up</a>
+                <a href="{% url 'login' %}" class="nav-link">Login</a>
+                <a href="{% url 'feed' %}" class="nav-link">Feed</a>
             {% endif %}
         </nav>
     </header>
 
+    <!-- ========== MAIN CONTENT ========== -->
     <main>
-        {% block content %}
-        {% endblock %}
+        {% block content %}{% endblock %}
     </main>
 
-    <footer>
-        <p>🌍 One World, Different Feelings — <strong>Your Feelings Matter</strong></p>
+    <!-- ========== FOOTER ========== -->
+    <footer class="social-footer">
+        <p>🌐 Connecting feelings across the world — <strong>Your Feelings Matter</strong></p>
         <p>&copy; 2025 I Feel. All rights reserved.</p>
     </footer>
 
+    <!-- ========== GLOBAL SCRIPTS ========== -->
     <script>
-function toggleComments(commentId) {
-  const commentSection = document.getElementById(commentId);
-  if (commentSection.classList.contains('hidden')) {
-    commentSection.classList.remove('hidden');
-  } else {
-    commentSection.classList.add('hidden');
-  }
-}
-</script>
+      function toggleComments(commentId) {
+          const section = document.getElementById(commentId);
+          section.classList.toggle("hidden");
+      }
 
-
+      // Optional: small animation for buttons
+      document.querySelectorAll('.nav-button, .btn, .toggle-comments-btn').forEach(btn => {
+          btn.addEventListener('mousedown', () => btn.classList.add('active'));
+          btn.addEventListener('mouseup', () => btn.classList.remove('active'));
+      });
+    </script>
 </body>
 </html>

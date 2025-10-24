@@ -7,23 +7,23 @@
   <h2 class="feed-title">🌍 Community Feed</h2>
 
   {% if user.is_authenticated %}
-    <div class="create-post-card">
+    <div class="create-post-card create-post">
       <h3>Share Your Thoughts</h3>
       <form action="{% url 'feed' %}" method="POST">
         {% csrf_token %}
         {{ form.as_p }}
-        <button type="submit" class="btn-primary">➕ Post</button>
+        <button type="submit" class="btn primary">➕ Post</button>
       </form>
     </div>
   {% else %}
     <p class="text-center login-prompt">
-      <a href="{% url 'login' %}" class="btn-primary">Log in</a> to share your thoughts!
+      <a href="{% url 'login' %}" class="btn primary">Log in</a> to share your thoughts!
     </p>
   {% endif %}
 
   <div class="posts-list">
     {% for post in posts %}
-      <div class="post-card">
+      <div class="post-card {% if post.like_count > 10 %}post-most-liked{% endif %}">
         <div class="post-header">
           <strong>{{ post.user.username }}</strong>
           <small class="post-date">{{ post.created_at|date:"F j, Y, g:i a" }}</small>
@@ -51,6 +51,17 @@
           <button class="toggle-comments-btn" onclick="toggleComments('comments-{{ post.id }}')">
             💬 Comments ({{ post.comment_count }})
           </button>
+        </div>
+
+        <div id="comments-{{ post.id }}" class="comments hidden">
+          {% for comment in post.comments.all %}
+            <div class="comment {% if comment.like_count > 5 %}highlight-support{% endif %}">
+              <strong>{{ comment.user.username }}</strong>: {{ comment.content }}
+              <small>{{ comment.created_at|date:"F j, Y, g:i a" }}</small>
+            </div>
+          {% empty %}
+            <p>No comments yet.</p>
+          {% endfor %}
         </div>
       </div>
     {% empty %}
