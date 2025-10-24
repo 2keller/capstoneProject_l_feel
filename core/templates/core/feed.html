@@ -3,44 +3,67 @@
 {% block title %}Community Feed{% endblock %}
 
 {% block content %}
-<h2>Community Feed</h2>
+<div class="feed-container">
+  <h2 class="feed-title">🌍 Community Feed</h2>
 
-{% if user.is_authenticated %}
-    <form action="{% url 'create_post' %}" method="POST" style="margin-bottom: 1.5rem; padding: 15px; border: 1px solid #eee;">
+  {% if user.is_authenticated %}
+    <div class="create-post-card">
+      <h3>Share Your Thoughts</h3>
+      <form action="{% url 'feed' %}" method="POST">
         {% csrf_token %}
-        <h3>Share Your Thoughts</h3>
-        {{ form.as_p }} <button type="submit" class="btn-primary">➕ Post</button>
-    </form>
-{% else %}
-    <p><a href="{% url 'login' %}">Log in</a> to share your thoughts!</p>
-{% endif %}
+        {{ form.as_p }}
+        <button type="submit" class="btn-primary">➕ Post</button>
+      </form>
+    </div>
+  {% else %}
+    <p class="text-center login-prompt">
+      <a href="{% url 'login' %}" class="btn-primary">Log in</a> to share your thoughts!
+    </p>
+  {% endif %}
 
-{% for post in posts %}
-    <div class="post">
-        <div class="post-actions">
-            {% if user.is_authenticated %}
-                <form action="{% url 'like_post' post.id %}" method="POST" style="display:inline;">
-                    {% csrf_token %}
-                    <button type="submit" class="btn-action like-btn">
-                        👍 Like ({{ post.like_count }})
-                    </button>
-                </form>
-                <form action="{% url 'dislike_post' post.id %}" method="POST" style="display:inline;">
-                    {% csrf_token %}
-                    <button type="submit" class="btn-action dislike-btn">
-                        👎 Dislike ({{ post.dislike_count }})
-                    </button>
-                </form>
-            {% endif %}
+  <div class="posts-list">
+    {% for post in posts %}
+      <div class="post-card">
+        <div class="post-header">
+          <strong>{{ post.user.username }}</strong>
+          <small class="post-date">{{ post.created_at|date:"F j, Y, g:i a" }}</small>
         </div>
 
-        <button class="toggle-comments-btn" onclick="toggleComments('comments-{{ post.id }}')">
-            💬 Show Comments ({{ post.comment_count }})
-        </button>
-        
+        <div class="post-body">
+          <p>{{ post.content }}</p>
         </div>
-{% empty %}
-    <p>No posts yet. Be the first to share!</p>
-{% endfor %}
 
+        <div class="post-footer">
+          {% if user.is_authenticated %}
+            <form action="{% url 'like_post' post.id %}" method="POST" style="display:inline;">
+              {% csrf_token %}
+              <button type="submit" class="btn-action like-btn">
+                👍 Like ({{ post.like_count }})
+              </button>
+            </form>
+            <form action="{% url 'dislike_post' post.id %}" method="POST" style="display:inline;">
+              {% csrf_token %}
+              <button type="submit" class="btn-action dislike-btn">
+                👎 Dislike ({{ post.dislike_count }})
+              </button>
+            </form>
+          {% endif %}
+          <button class="toggle-comments-btn" onclick="toggleComments('comments-{{ post.id }}')">
+            💬 Comments ({{ post.comment_count }})
+          </button>
+        </div>
+      </div>
+    {% empty %}
+      <p class="empty-feed-text">No posts yet. Be the first to share!</p>
+    {% endfor %}
+  </div>
+</div>
+
+<script>
+function toggleComments(id) {
+  const section = document.getElementById(id);
+  section.classList.toggle("hidden");
+}
+</script>
 {% endblock %}
+
