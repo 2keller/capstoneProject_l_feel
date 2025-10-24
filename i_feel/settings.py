@@ -128,7 +128,6 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-signup_redirect_url = 'feed'
+signup_redirect_url = 'home'
 LOGIN_URL = 'login'
-LOGIN_REDIRECT_URL = 'feed'
-LOGOUT_REDIRECT_URL = 'feed'
+LOGIN_REDIRECT_URL = 'home'
