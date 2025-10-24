@@ -4,78 +4,116 @@
 
 {% block content %}
 <div class="feed-container">
-  <h2 class="feed-title">🌍 Community Feed</h2>
+    <h2 class="feed-title">🌍 Community Feed</h2>
 
-  {% if user.is_authenticated %}
-    <div class="create-post-card create-post">
-      <h3>Share Your Thoughts</h3>
-      <form action="{% url 'feed' %}" method="POST">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="btn primary">➕ Post</button>
-      </form>
-    </div>
-  {% else %}
-    <p class="text-center login-prompt">
-      <a href="{% url 'login' %}" class="btn primary">Log in</a> to share your thoughts!
-    </p>
-  {% endif %}
+    {% comment %} CRITICAL: Display Messages (Success, Error, Validation Failures) {% endcomment %}
+    {% if messages %}
+        <ul class="messages list-none p-0 mb-4">
+            {% for message in messages %}
+                <li class="p-3 mb-2 rounded shadow 
+                           {% if message.tags == 'success' %}bg-green-100 text-green-700{% elif message.tags == 'error' %}bg-red-100 text-red-700{% else %}bg-blue-100 text-blue-700{% endif %}">
+                    {{ message }}
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
 
-  <div class="posts-list">
-    {% for post in posts %}
-      <div class="post-card {% if post.like_count > 10 %}post-most-liked{% endif %}">
-        <div class="post-header">
-          <strong>{{ post.user.username }}</strong>
-          <small class="post-date">{{ post.created_at|date:"F j, Y, g:i a" }}</small>
-        </div>
-
-        <div class="post-body">
-          <p>{{ post.content }}</p>
-        </div>
-
-        <div class="post-footer">
-          {% if user.is_authenticated %}
-            <form action="{% url 'like_post' post.id %}" method="POST" style="display:inline;">
-              {% csrf_token %}
-              <button type="submit" class="btn-action like-btn">
-                👍 Like ({{ post.like_count }})
-              </button>
-              
+    {% if user.is_authenticated %}
+        <div class="create-post-card create-post">
+            <h3>Share Your Thoughts</h3>
+            
+            <form action="{% url 'feed' %}" method="POST">
+                {% csrf_token %}
+                
+                {% for field in form %}
+                    <div class="form-group mb-3">
+                        <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ field.label }}</label>
+                        {{ field }}
+                        
+                        {% if field.errors %}
+                            <p class="field-error text-sm text-red-600 mt-1">
+                                {% for error in field.errors %}{{ error }}{% endfor %}
+                            </p>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+                
+                <button type="submit" class="btn primary">➕ Post</button>
             </form>
-            <form action="{% url 'dislike_post' post.id %}" method="POST" style="display:inline;">
-              {% csrf_token %}
-              <button type="submit" class="btn-action dislike-btn">
-                👎 Dislike ({{ post.dislike_count }})
-              </button>
-            </form>
-          {% endif %}
-          <button class="toggle-comments-btn" onclick="toggleComments('comments-{{ post.id }}')">
-            💬 Comments ({{ post.comment_count }})
-          </button>
         </div>
+    {% else %}
+        <p class="text-center login-prompt">
+            <a href="{% url 'login' %}" class="btn primary">Log in</a> to share your thoughts!
+        </p>
+    {% endif %}
 
-        <div id="comments-{{ post.id }}" class="comments hidden">
-          {% for comment in post.comments.all %}
-            <div class="comment {% if comment.like_count > 5 %}highlight-support{% endif %}">
-              <strong>{{ comment.user.username }}</strong>: {{ comment.content }}
-              <small>{{ comment.created_at|date:"F j, Y, g:i a" }}</small>
+    <div class="posts-list">
+        {% for post in posts %}
+          <div class="post-card {% if post.like_count > 10 %}post-most-liked{% endif %}">
+            <div class="post-header">
+              <strong>{{ post.user.username }}</strong>
+              <small class="post-date">{{ post.created_at|date:"F j, Y, g:i a" }}</small>
             </div>
-          {% empty %}
-            <p>No comments yet.</p>
-          {% endfor %}
-        </div>
-      </div>
-    {% empty %}
-      <p class="empty-feed-text">No posts yet. Be the first to share!</p>
-    {% endfor %}
-  </div>
+
+            <div class="post-body">
+              <p>{{ post.content }}</p>
+            </div>
+
+            <div class="post-footer">
+              {% if user.is_authenticated %}
+                <form action="{% url 'like_post' post.id %}" method="POST" style="display:inline;">
+                  {% csrf_token %}
+                  <button type="submit" class="btn-action like-btn">
+                    👍 Like ({{ post.like_count }})
+                  </button>
+                </form>
+                <form action="{% url 'dislike_post' post.id %}" method="POST" style="display:inline;">
+                  {% csrf_token %}
+                  <button type="submit" class="btn-action dislike-btn">
+                    👎 Dislike ({{ post.dislike_count }})
+                  </button>
+                </form>
+              {% endif %}
+              <button class="toggle-comments-btn" onclick="toggleComments('comments-{{ post.id }}')">
+                💬 Comments ({{ post.comment_count }})
+              </button>
+            </div>
+
+            <div id="comments-{{ post.id }}" class="comments hidden">
+                
+                {% comment %} 
+                    CRITICAL: Add Comment Form here, assuming you want users to comment without leaving the page.
+                    This requires the comment_form to be passed to the template context.
+                {% endcomment %}
+                <div class="add-comment mt-2 border-t pt-2">
+                    <form action="{% url 'comment_post' post.id %}" method="POST">
+                        {% csrf_token %}
+                        {{ comment_form.content }} 
+                        <button type="submit" class="btn-comment">Comment</button>
+                    </form>
+                </div>
+                
+                {% for comment in post.comment_set.all %} 
+                  <div class="comment {% if comment.is_supportive %}highlight-support{% endif %}"> 
+                    <strong>{{ comment.user.username }}</strong>: {{ comment.content }}
+                    <small>{{ comment.created_at|date:"F j, Y, g:i a" }}</small>
+                  </div>
+                {% empty %}
+                  <p>No comments yet.</p>
+                {% endfor %}
+            </div>
+          </div>
+        {% empty %}
+          <p class="empty-feed-text">No posts yet. Be the first to share!</p>
+        {% endfor %}
+    </div>
 </div>
 
 <script>
 function toggleComments(id) {
   const section = document.getElementById(id);
+  // Toggle the 'hidden' class to show/hide the comments section
   section.classList.toggle("hidden");
 }
 </script>
 {% endblock %}
-
