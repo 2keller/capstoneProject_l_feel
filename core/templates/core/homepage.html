@@ -1,62 +1,66 @@
+
+
 {% extends "base.html" %}
 
 {% block title %}Home | Profile{% endblock %}
 
 {% block content %}
-<div class="form-container">
-    <h2 class="form-title">Welcome to I Feel</h2>
-    <p class="text-center">A place to share your thoughts and emotions with the community.</p>
+<div class="app-container">
+  <header class="app-header">
+    <h1 class="app-title">I Feel You</h1>
+    <p class="app-subtitle">One World, Different Feelings 🌍</p>
+  </header>
 
-    {% if user.is_authenticated %}
-        <p class="text-center" style="margin-top:1rem;">Hi <strong>{{ user.username }}</strong>!</p>
+  {% if user.is_authenticated %}
+  <section class="profile-section">
+    <div class="profile-card">
+      <div class="avatar-wrapper">
+        {% if user.profile and user.profile.avatar %}
+          <img src="{{ user.profile.avatar.url }}" alt="Avatar" class="avatar-img">
+        {% else %}
+          <div class="avatar-placeholder">{{ user.username|first|upper }}</div>
+        {% endif %}
+      </div>
 
-        <div class="profile-info" style="margin-top: 1.5rem; text-align:center; padding:1rem; border:1px solid #ccc; border-radius:8px; background-color:#f9f9f9;">
-            <h3>Your Profile</h3>
-            
-            <p><strong>Username:</strong> {{ user.username }}</p>
-            <p><strong>Email:</strong> {{ user.email }}</p>
+      <h2 class="username">{{ user.username }}</h2>
+      <p class="email">{{ user.email }}</p>
 
-            {% if user.profile %}
-                {% if user.profile.bio %}
-                    <p><strong>Bio:</strong> {{ user.profile.bio }}</p>
-                {% endif %}
-                
-                {% if user.profile.avatar %}
-                    <p><strong>Avatar:</strong></p>
-                    <img src="{{ user.profile.avatar.url }}" alt="Avatar" style="width:100px; height:100px; border-radius:50%;">
-                {% endif %}
-                
-                {% if user.profile.date_of_birth %}
-                    <p><strong>Date of Birth:</strong> {{ user.profile.date_of_birth }}</p>
-                {% endif %}
-                
-                {% if not user.profile.bio and not user.profile.avatar and not user.profile.date_of_birth %}
-                    <p style="color: grey;">Your profile is blank. Click "Edit Profile" to fill it out!</p>
-                {% endif %}
-                
-            {% else %}
-                <p style="color: red;">⚠️ **Error:** Profile data is missing. Please contact support or check your account setup!</p>
-            {% endif %}
-        </div>
+      {% if user.profile %}
+        {% if user.profile.bio %}
+          <p class="bio">“{{ user.profile.bio }}”</p>
+        {% else %}
+          <p class="bio empty">No bio yet — share how you feel 💭</p>
+        {% endif %}
 
-        <div class="text-center" style="margin-top:1.5rem;">
-            <a href="{% url 'feed' %}" class="btn-primary" style="margin-right:0.5rem;">Go to Feed</a>
-            <a href="{% url 'edit_profile' %}" class="btn-primary">Edit Profile</a> 
-        </div>
+        {% if user.profile.date_of_birth %}
+          <p class="dob">🎂 {{ user.profile.date_of_birth }}</p>
+        {% endif %}
+      {% else %}
+        <p class="error-text">⚠️ Profile data missing. Please contact support.</p>
+      {% endif %}
+    </div>
 
-        <form action="{% url 'logout' %}" method="post" style="margin-top:1rem; text-align:center;">
-            {% csrf_token %}
-            <button type="submit" class="btn-primary">Logout</button>
-        </form>
+    <div class="button-group">
+      <a href="{% url 'feed' %}" class="btn primary">Go to Feed</a>
+      <a href="{% url 'edit_profile' %}" class="btn secondary">Edit Profile</a>
+    </div>
 
-    {% else %}
-        <p class="text-center" style="margin-top:1rem;">You are not logged in.</p>
+    <form action="{% url 'logout' %}" method="post" class="logout-form">
+      {% csrf_token %}
+      <button type="submit" class="btn danger">Logout</button>
+    </form>
+  </section>
 
-        <div class="text-center" style="margin-top:1rem;">
-            <a href="{% url 'login' %}" class="btn-primary" style="margin-right:0.5rem;">Log In</a>
-            <a href="{% url 'signup' %}" class="btn-primary">Sign Up</a>
-        </div>
-    {% endif %}
+  {% else %}
+  <section class="guest-section">
+    <h3>Welcome to I Feel You</h3>
+    <p class="guest-text">A place to share your thoughts and emotions with the community.</p>
+
+    <div class="auth-buttons">
+      <a href="{% url 'login' %}" class="btn primary">Log In</a>
+      <a href="{% url 'signup' %}" class="btn secondary">Sign Up</a>
+    </div>
+  </section>
+  {% endif %}
 </div>
 {% endblock %}
-

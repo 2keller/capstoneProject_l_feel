@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}Create New Post{% endblock %}
+
+{% block content %}
+<div class="max-w-xl mx-auto mt-8 p-6 bg-white rounded-lg shadow-xl">
+    <h2 class="text-3xl font-bold mb-6 text-center">Share Your Thoughts</h2>
+    
+    {% if form.non_field_errors %}
+        <div class="bg-red-100 text-red-700 border border-red-300 p-3 mb-4 rounded">
+            {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+        </div>
+    {% endif %}
+
+    <form method="POST" action="{% url 'create_post' %}">
+        {% csrf_token %}
+        
+        {% for field in form %}
+            <div class="mb-4">
+                <label for="{{ field.id_for_label }}" class="block text-gray-700 font-medium mb-1">
+                    {{ field.label }}
+                </label>
+                {{ field }} 
+                
+                {% if field.errors %}
+                    <p class="text-sm text-red-600 mt-1">
+                        {% for error in field.errors %}{{ error }}{% endfor %}
+                    </p>
+                {% endif %}
+            </div>
+        {% endfor %}
+
+        <button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition duration-200">
+            Post to Feed
+        </button>
+    </form>
+    
+    <div class="text-center mt-4">
+        <a href="{% url 'feed' %}" class="text-gray-600 hover:text-blue-500">← Back to Feed</a>
+    </div>
+</div>
+{% endblock %}

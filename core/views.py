@@ -47,41 +47,34 @@ class SignUpView(View):
 # --- CORE VIEWS ---
 
 @login_required # Protects the feed from anonymous access
+@login_required
 def feed(request):
-    # 💡 Refactoring: Annotate posts to get counts in the query (cleaner template, fewer queries)
-    posts = Post.objects.annotate(
-        like_count=Count('like', distinct=True),
-        dislike_count=Count('dislike', distinct=True),
-        comment_count=Count('comment', distinct=True)
-    ).all().order_by('-created_at') # Order by newest first
-    
-    # Only pass the form needed for commenting
-    comment_form = CommentForm() 
-
-    return render(request, "core/feed.html", {
-        'posts': posts,
-        'comment_form': comment_form
-    })
-
-class CreatePostView(LoginRequiredMixin, View):
-    """Handles displaying and submitting the form to create a new post."""
-    
-    # We will use this class to handle form submission from the feed page itself.
-    def post(self, request):
+    # Handle form submission (POST request)
+    if request.method == "POST":
         form = PostForm(request.POST)
         if form.is_valid():
             post = form.save(commit=False)
             post.user = request.user
             post.save()
-        # Always redirect back to the feed whether successful or not, for simplicity
-        return redirect('feed')
-    
-    # If you want a separate page for creation:
-    # def get(self, request):
-    #     form = PostForm()
-    #     return render(request, 'core/create_post.html', {'form': form})
-    
-# --- ACTION VIEWS ---
+            return redirect('feed')
+    else:
+        form = PostForm()
+
+    # Annotate posts with counts
+    posts = Post.objects.annotate(
+        like_count=Count('like', distinct=True),
+        dislike_count=Count('dislike', distinct=True),
+        comment_count=Count('comment', distinct=True)
+    ).order_by('-created_at')
+
+    comment_form = CommentForm()
+
+    return render(request, "core/feed.html", {
+        'posts': posts,
+        'form': form,
+        'comment_form': comment_form,
+    })
+
 
 @login_required
 def comment_post(request, post_id):
