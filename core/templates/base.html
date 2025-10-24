@@ -9,51 +9,49 @@
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 </head>
 <body>
-    <!-- ========== HEADER ========== -->
-    <header class="social-header">
-        <div class="header-left">
-            <h1 class="logo">I Feel</h1>
-            <p class="header-tagline">🌍 One World, Different Feelings</p>
-        </div>
-        <nav class="header-nav">
+    <!-- Header / Navigation -->
+    <header>
+        <h1>I Feel</h1>
+        <nav>
             {% if user.is_authenticated %}
-                <span class="greeting">👋 Hi, {{ user.username }}!</span>
-                <a href="{% url 'feed' %}" class="nav-link">Feed</a>
-                <form action="{% url 'logout' %}" method="post" class="inline-form">
+                <span>👋 Hello, {{ user.username }}!</span>
+                <a href="{% url 'home' %}">Home</a>
+                <a href="{% url 'feed' %}">Feed</a>
+                <form action="{% url 'logout' %}" method="post" style="display:inline;">
                     {% csrf_token %}
-                    <button type="submit" class="nav-button logout-button">Logout</button>
+                    <button type="submit">Logout</button>
                 </form>
             {% else %}
-                <a href="{% url 'signup' %}" class="nav-link">Sign Up</a>
-                <a href="{% url 'login' %}" class="nav-link">Login</a>
-                <a href="{% url 'feed' %}" class="nav-link">Feed</a>
+                <a href="{% url 'signup' %}">Sign Up</a>
+                <a href="{% url 'login' %}">Login</a>
+                <a href="{% url 'feed' %}">Feed</a>
             {% endif %}
         </nav>
     </header>
 
-    <!-- ========== MAIN CONTENT ========== -->
+    <!-- Main Content -->
     <main>
-        {% block content %}{% endblock %}
+        {% block content %}
+        {% endblock %}
     </main>
 
-    <!-- ========== FOOTER ========== -->
-    <footer class="social-footer">
-        <p>🌐 Connecting feelings across the world — <strong>Your Feelings Matter</strong></p>
+    <!-- Footer -->
+    <footer>
+        <p>🌍 One World, Different Feelings — <strong>Your Feelings Matter</strong></p>
         <p>&copy; 2025 I Feel. All rights reserved.</p>
     </footer>
 
-    <!-- ========== GLOBAL SCRIPTS ========== -->
+    <!-- Comments Toggle Script -->
     <script>
       function toggleComments(commentId) {
-          const section = document.getElementById(commentId);
-          section.classList.toggle("hidden");
+          const commentSection = document.getElementById(commentId);
+          if (commentSection.classList.contains('hidden')) {
+              commentSection.classList.remove('hidden');
+          } else {
+              commentSection.classList.add('hidden');
+          }
       }
-
-      // Optional: small animation for buttons
-      document.querySelectorAll('.nav-button, .btn, .toggle-comments-btn').forEach(btn => {
-          btn.addEventListener('mousedown', () => btn.classList.add('active'));
-          btn.addEventListener('mouseup', () => btn.classList.remove('active'));
-      });
     </script>
 </body>
 </html>
+
