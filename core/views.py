@@ -144,3 +144,6 @@ class ProfileView(LoginRequiredMixin, View):
     template_name = 'core/profile.html'
     def get(self, request):
         return render(request, self.template_name, {})
+    
+def home(request):
+    return render(request, 'core/homepage.html')

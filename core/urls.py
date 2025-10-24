@@ -7,7 +7,8 @@ from .views import (
     like_post,
     dislike_post,
     EditPostView,
-    DeletePostView
+    DeletePostView,
+    home,
 )
 
 urlpatterns = [
@@ -16,11 +17,8 @@ urlpatterns = [
     path('login/', auth_views.LoginView.as_view(template_name='registration/login.html'), name='login'),
     path('logout/', auth_views.LogoutView.as_view(next_page='login'), name='logout'),
 
-  
-    path('', feed, name='home'), 
-    
-    
-    path('feed/', feed, name='feed'), 
+    path('', home, name='home'),
+    path('feed/', feed, name='feed'),
 
     path('post/<int:post_id>/comment/', comment_post, name='comment_post'),
     path('post/<int:post_id>/like/', like_post, name='like_post'),
