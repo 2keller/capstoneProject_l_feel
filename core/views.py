@@ -46,7 +46,7 @@ class SignUpView(View):
 
 # --- CORE VIEWS ---
 
-@login_required # Protects the feed from anonymous access
+
 @login_required
 def feed(request):
     # Handle form submission (POST request)

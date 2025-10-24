@@ -6,7 +6,7 @@ from .views import (
     comment_post,
     like_post,
     dislike_post,
-    CreatePostView, # New Import
+    #CreatePostView, # New Import
     EditPostView,
     DeletePostView
 )
@@ -21,7 +21,7 @@ urlpatterns = [
     path('', feed, name='feed'), # 💡 FIX: Maps root / to the feed view
 
     # 💡 FIX: Dedicated route for post creation/submission
-    path('post/create/', CreatePostView.as_view(), name='create_post'), 
+    #path('post/create/', CreatePostView.as_view(), name='create_post'),
 
     path('post/<int:post_id>/comment/', comment_post, name='comment_post'),
     path('post/<int:post_id>/like/', like_post, name='like_post'),
