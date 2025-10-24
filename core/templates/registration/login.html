@@ -4,44 +4,56 @@
 
 {% block content %}
 <div class="form-container">
-  <h2 class="form-title">Welcome Back</h2>
+    <h2 class="form-title">Welcome Back</h2>
 
-  <form method="post">
-    {% csrf_token %}
+    <form method="post">
+        {% csrf_token %}
 
-    {% if form.non_field_errors %}
-      <div class="error-messages">
-        {% for error in form.non_field_errors %}
-          <p>{{ error }}</p>
+        {% comment %}
+            CRITICAL FIX: Include the 'next' URL parameter (if present)
+            This ensures the user is redirected to the page they were trying to access 
+            before being sent to the login page (e.g., from /feed/?next=/).
+        {% endcomment %}
+        {% if next %}
+            <input type="hidden" name="next" value="{{ next }}" />
+        {% endif %}
+
+        {% if form.non_field_errors %}
+          <div class="error-messages">
+            {% for error in form.non_field_errors %}
+              <p>{{ error }}</p>
+            {% endfor %}
+          </div>
+        {% endif %}
+
+        {% for field in form %}
+          <div class="form-group">
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            
+            {% comment %}
+                SIMPLIFICATION: Use {{ field }} directly. 
+                Since you fixed the forms.py to include styling classes, 
+                this is much cleaner than manually defining the <input> tag.
+            {% endcomment %}
+            {{ field }} 
+
+            {% if field.help_text %}
+              <small>{{ field.help_text }}</small>
+            {% endif %}
+            
+            {% if field.errors %}
+              <p class="field-error">
+                {% for error in field.errors %}{{ error }}{% endfor %}
+              </p>
+            {% endif %}
+          </div>
         {% endfor %}
-      </div>
-    {% endif %}
 
-    {% for field in form %}
-      <div class="form-group">
-        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-        <input type="{{ field.field.widget.input_type }}" 
-               name="{{ field.name }}" 
-               id="{{ field.id_for_label }}" 
-               value="{{ field.value|default_if_none:'' }}" 
-               class="form-input"
-               {% if field.field.required %}required{% endif %}>
-        {% if field.help_text %}
-          <small>{{ field.help_text }}</small>
-        {% endif %}
-        {% if field.errors %}
-          <p class="field-error">
-            {% for error in field.errors %}{{ error }}{% endfor %}
-          </p>
-        {% endif %}
-      </div>
-    {% endfor %}
+        <button type="submit" class="btn-full btn-primary">Log In</button>
+    </form>
 
-    <button type="submit" class="btn-full btn-primary">Log In</button>
-  </form>
-
-  <p class="form-footer">
-    Don't have an account? <a href="{% url 'signup' %}">Sign up here</a>.
-  </p>
+    <p class="form-footer">
+        Don't have an account? <a href="{% url 'signup' %}">Sign up here</a>.
+    </p>
 </div>
 {% endblock %}

@@ -40,6 +40,7 @@
               <button type="submit" class="btn-action like-btn">
                 👍 Like ({{ post.like_count }})
               </button>
+              
             </form>
             <form action="{% url 'dislike_post' post.id %}" method="POST" style="display:inline;">
               {% csrf_token %}
