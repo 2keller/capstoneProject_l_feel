@@ -4,59 +4,75 @@
 
 {% block content %}
 <div class="app-container">
-  <header class="app-header">
-    <h1 class="app-title">I Feel You</h1>
-    <p class="app-subtitle">One World, Different Feelings 🌍</p>
-  </header>
+    <header class="app-header">
+        <h1 class="app-title">I Feel You</h1>
+        <p class="app-subtitle">One World, Different Feelings 🌍</p>
+    </header>
 
-  {% if user.is_authenticated %}
-  <section class="profile-section">
-    <div class="profile-card">
-      <div class="avatar-wrapper">
-        {% if user.profile and user.profile.avatar %}
-          <img src="{{ user.profile.avatar.url }}" alt="Avatar" class="avatar-img">
-        {% else %}
-          <div class="avatar-placeholder">{{ user.username|first|upper }}</div>
-        {% endif %}
-      </div>
+    {% if user.is_authenticated %}
+    <section class="profile-section">
+        <div class="profile-card">
+            <div class="avatar-wrapper">
+                
+                {% comment %} 💡 CRITICAL FIX: Check if the Profile exists first {% endcomment %}
+                {% if user.profile %}
+                    {% if user.profile.avatar %}
+                        <img src="{{ user.profile.avatar.url }}" alt="Avatar" class="avatar-img">
+                    {% else %}
+                        <div class="avatar-placeholder">{{ user.username|first|upper }}</div>
+                    {% endif %}
+                {% else %}
+                    {# Default placeholder if no profile object exists at all #}
+                    <div class="avatar-placeholder">?</div> 
+                {% endif %}
+            </div>
 
-      <h2 class="username">{{ user.username }}</h2>
-      <p class="email">{{ user.email }}</p>
+            <h2 class="username">{{ user.username }}</h2>
+            
+            <p class="email">
+                {% comment %} Guard against missing user.email if using non-standard auth {% endcomment %}
+                {% if user.email %}
+                    {{ user.email }}
+                {% else %}
+                    Email not available
+                {% endif %}
+            </p>
 
-      {% if user.profile %}
-        <p class="bio {% if not user.profile.bio %}empty{% endif %}">
-          {% if user.profile.bio %}“{{ user.profile.bio }}”{% else %}No bio yet — share how you feel 💭{% endif %}
-        </p>
-        {% if user.profile.date_of_birth %}
-          <p class="dob">🎂 {{ user.profile.date_of_birth }}</p>
-        {% endif %}
-      {% else %}
-        <p class="error-text">⚠️ Profile data missing. Please contact support.</p>
-      {% endif %}
-    </div>
+            {% if user.profile %}
+                <p class="bio {% if not user.profile.bio %}empty{% endif %}">
+                    {% if user.profile.bio %}“{{ user.profile.bio }}”{% else %}No bio yet — share how you feel 💭{% endif %}
+                </p>
+                {% if user.profile.date_of_birth %}
+                    <p class="dob">🎂 {{ user.profile.date_of_birth }}</p>
+                {% endif %}
+            {% else %}
+                {# Display a prompt if the Profile model is missing for the user #}
+                <p class="error-text">⚠️ **Profile data missing.** Please create your profile or contact support.</p>
+            {% endif %}
+        </div>
 
-    <div class="button-group">
-      <a href="{% url 'feed' %}" class="btn primary">Go to Feed</a>
-      <a href="{% url 'edit_profile' %}" class="btn secondary">Edit Profile</a>
-    </div>
+        <div class="button-group">
+            <a href="{% url 'feed' %}" class="btn primary">Go to Feed</a>
+            {# NOTE: Ensure you have a URL pattern named 'edit_profile' defined #}
+            <a href="{% url 'edit_profile' %}" class="btn secondary">Edit Profile</a> 
+        </div>
 
-    <form action="{% url 'logout' %}" method="post" class="logout-form">
-      {% csrf_token %}
-      <button type="submit" class="btn danger">Logout</button>
-    </form>
-  </section>
+        <form action="{% url 'logout' %}" method="post" class="logout-form">
+            {% csrf_token %}
+            <button type="submit" class="btn danger">Logout</button>
+        </form>
+    </section>
 
-  {% else %}
-  <section class="guest-section">
-    <h3>Welcome to I Feel You</h3>
-    <p class="guest-text">A place to share your thoughts and emotions with the community.</p>
+    {% else %}
+    <section class="guest-section">
+        <h3>Welcome to I Feel You</h3>
+        <p class="guest-text">A place to share your thoughts and emotions with the community.</p>
 
-    <div class="auth-buttons">
-      <a href="{% url 'login' %}" class="btn primary">Log In</a>
-      <a href="{% url 'signup' %}" class="btn secondary">Sign Up</a>
-    </div>
-  </section>
-  {% endif %}
+        <div class="auth-buttons">
+            <a href="{% url 'login' %}" class="btn primary">Log In</a>
+            <a href="{% url 'signup' %}" class="btn secondary">Sign Up</a>
+        </div>
+    </section>
+    {% endif %}
 </div>
 {% endblock %}
-
