@@ -6,6 +6,22 @@
 <div class="form-container">
     <h2 class="form-title">Welcome Back</h2>
 
+    {% if next %}
+      {% with google_url="/accounts/google/login/?next="|add:next %}
+        <a href="{{ google_url }}" class="btn btn-full google-btn" style="margin-bottom:1rem;text-decoration:none;border-radius:8px;">
+          <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><g><path fill="#4285F4" d="M21.805 10.023h-9.765v3.999h5.56c-.241 1.301-1.537 3.817-5.56 3.817-3.346 0-6.075-2.771-6.075-6.211s2.729-6.21 6.075-6.21c1.907 0 3.188.809 3.921 1.507l2.678-2.638c-1.73-1.627-3.934-2.635-6.599-2.635-5.626 0-10.221 4.645-10.221 10.021s4.595 10.021 10.221 10.021c5.921 0 9.847-4.153 9.847-9.993 0-.668-.075-1.179-.168-1.678z"></path></g></svg>
+          Continue with Google
+        </a>
+      {% endwith %}
+    {% else %}
+      <a href="/accounts/google/login/" class="btn btn-full google-btn" style="margin-bottom:1rem;text-decoration:none;border-radius:8px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><g><path fill="#4285F4" d="M21.805 10.023h-9.765v3.999h5.56c-.241 1.301-1.537 3.817-5.56 3.817-3.346 0-6.075-2.771-6.075-6.211s2.729-6.21 6.075-6.21c1.907 0 3.188.809 3.921 1.507l2.678-2.638c-1.73-1.627-3.934-2.635-6.599-2.635-5.626 0-10.221 4.645-10.221 10.021s4.595 10.021 10.221 10.021c5.921 0 9.847-4.153 9.847-9.993 0-.668-.075-1.179-.168-1.678z"></path></g></svg>
+        Continue with Google
+      </a>
+    {% endif %}
+
+    <div class="oauth-separator">or</div>
+
     <form method="post">
         {% csrf_token %}
 
@@ -29,18 +45,10 @@
         {% for field in form %}
           <div class="form-group">
             <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-            
-            {% comment %}
-                SIMPLIFICATION: Use {{ field }} directly. 
-                Since you fixed the forms.py to include styling classes, 
-                this is much cleaner than manually defining the <input> tag.
-            {% endcomment %}
             {{ field }} 
-
             {% if field.help_text %}
               <small>{{ field.help_text }}</small>
             {% endif %}
-            
             {% if field.errors %}
               <p class="field-error">
                 {% for error in field.errors %}{{ error }}{% endfor %}

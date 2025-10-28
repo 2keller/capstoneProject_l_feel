@@ -456,6 +456,41 @@ form button:hover {
 
 .btn.danger:hover { background-color: #c9302c; }
 
+/* Full-width helper for form buttons */
+.btn-full { width: 100%; }
+
+/* Branded OAuth button that still matches theme */
+.google-btn {
+  background-color: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  box-shadow: 0 1px 5px rgba(0,0,0,0.04);
+}
+.google-btn:hover {
+  background-color: #ffffff0d;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.oauth-separator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin: 1rem 0;
+}
+.oauth-separator::before,
+.oauth-separator::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
 /* Guest Section */
 .guest-section {
   background-color: #ffffff;
