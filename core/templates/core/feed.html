@@ -51,8 +51,14 @@
         {% for post in posts %}
           <div class="post-card {% if post.like_count > 10 %}post-most-liked{% endif %}">
             <div class="post-header">
-              <strong>{{ post.user.username }}</strong>
-              <small class="post-date">{{ post.created_at|date:"F j, Y, g:i a" }}</small>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <div class="avatar-placeholder" style="width:32px;height:32px;font-size:0.9rem;">{{ post.user.username|first|upper }}</div>
+                <strong>{{ post.user.username }}</strong>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <span class="badge" style="background: var(--accent); color: var(--primary); padding:2px 8px; border-radius:999px; font-size: 0.75rem;">{{ post.emotion_type|title }}</span>
+                <small class="post-date">{{ post.created_at|date:"F j, Y, g:i a" }}</small>
+              </div>
             </div>
 
             <div class="post-body">

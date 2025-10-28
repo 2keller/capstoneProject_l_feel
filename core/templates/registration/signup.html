@@ -7,7 +7,7 @@
     <h2 class="auth-title">Create Your Account</h2>
     <p class="auth-subtitle">Join the community and share your feelings 🌍</p>
 
-    <form method="post" action="{% url 'signup' %}" class="auth-form">
+  <form method="post" action="{% url 'signup' %}" class="auth-form">
         {% csrf_token %}
 
         {% if form.non_field_errors %}
@@ -21,13 +21,7 @@
         {% for field in form %}
           <div class="form-group">
             <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-            <input type="{{ field.widget_type }}" 
-                   name="{{ field.name }}" 
-                   id="{{ field.id_for_label }}" 
-                   value="{{ field.value|default_if_none:'' }}"
-                   placeholder="{{ field.label }}"
-                   class="form-input"
-                   {% if field.field.required %}required{% endif %}>
+            {{ field }}
 
             {% if field.help_text %}
               <p class="form-help">{{ field.help_text|safe }}</p>
