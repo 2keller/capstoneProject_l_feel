@@ -6,6 +6,8 @@
 <div class="feed-container">
     <h2 class="feed-title">🌍 Community Feed</h2>
 
+  <div id="react-feed-root" style="margin-bottom: 1rem;"></div>
+
     {% comment %} CRITICAL: Display Messages (Success, Error, Validation Failures) {% endcomment %}
     {% if messages %}
         <ul class="messages list-none p-0 mb-4">
@@ -122,4 +124,6 @@ function toggleComments(id) {
   section.classList.toggle("hidden");
 }
 </script>
+{% load static %}
+<script type="module" src="{% static 'frontend/assets/main.js' %}"></script>
 {% endblock %}
