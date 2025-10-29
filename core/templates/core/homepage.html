@@ -3,65 +3,126 @@
 {% block title %}Home | Profile{% endblock %}
 
 {% block content %}
-<div class="app-container">
+<div class="app-container home-grid">
     <header class="app-header">
         <h1 class="app-title">I Feel You</h1>
         <p class="app-subtitle">One World, Different Feelings 🌍</p>
     </header>
 
     {% if user.is_authenticated %}
-    <section class="profile-section">
-        <div class="profile-card">
-            <div class="avatar-wrapper">
-                
-                {% comment %} 💡 CRITICAL FIX: Check if the Profile exists first {% endcomment %}
-                {% if user.profile %}
-                    {% if user.profile.avatar %}
-                        <img src="{{ user.profile.avatar.url }}" alt="Avatar" class="avatar-img">
-                    {% else %}
-                        <div class="avatar-placeholder">{{ user.username|first|upper }}</div>
-                    {% endif %}
-                {% else %}
-                    {# Default placeholder if no profile object exists at all #}
-                    <div class="avatar-placeholder">?</div> 
-                {% endif %}
+    <section class="home-main">
+        <!-- Stories strip -->
+        <div class="stories" aria-label="Stories">
+            <div class="story-item your-story">
+                <div class="story-avatar">{{ user.username|first|upper }}</div>
+                <span class="add-badge" title="Add story">＋</span>
+                <span class="story-name">Your Story</span>
             </div>
-
-            <h2 class="username">{{ user.username }}</h2>
-            
-            <p class="email">
-                {% comment %} Guard against missing user.email if using non-standard auth {% endcomment %}
-                {% if user.email %}
-                    {{ user.email }}
-                {% else %}
-                    Email not available
-                {% endif %}
-            </p>
-
-            {% if user.profile %}
-                <p class="bio {% if not user.profile.bio %}empty{% endif %}">
-                    {% if user.profile.bio %}“{{ user.profile.bio }}”{% else %}No bio yet — share how you feel 💭{% endif %}
-                </p>
-                {% if user.profile.date_of_birth %}
-                    <p class="dob">🎂 {{ user.profile.date_of_birth }}</p>
-                {% endif %}
-            {% else %}
-                {# Display a prompt if the Profile model is missing for the user #}
-                <p class="error-text">⚠️ **Profile data missing.** Please create your profile or contact support.</p>
-            {% endif %}
+            {% for i in "xxxx" %}
+            <div class="story-item is-disabled" title="Stories coming soon">
+                <div class="story-avatar">S</div>
+                <span class="story-name">Soon</span>
+            </div>
+            {% endfor %}
         </div>
 
-        <div class="button-group">
-            <a href="{% url 'feed' %}" class="btn primary">Go to Feed</a>
-            {# NOTE: Ensure you have a URL pattern named 'edit_profile' defined #}
-            <a href="{% url 'edit_profile' %}" class="btn secondary">Edit Profile</a> 
+        <!-- Quick actions -->
+        <div class="quick-actions">
+            <a class="qa-btn primary" href="{% url 'feed' %}">➕ New Post</a>
+            <a class="qa-btn" href="{% url 'feed' %}">📰 Open Feed</a>
+            <button class="qa-btn" type="button" disabled title="Coming soon">🔔 Notifications</button>
+            <button class="qa-btn" type="button" disabled title="Coming soon">⚙️ Settings</button>
         </div>
 
-        <form action="{% url 'logout' %}" method="post" class="logout-form">
-            {% csrf_token %}
-            <button type="submit" class="btn danger">Logout</button>
-        </form>
+        <!-- Explore grid (placeholders) -->
+        <div class="explore section">
+            <h3 class="section-title"><span class="section-icon">🔎</span> Explore</h3>
+            <div class="explore-grid">
+                {% for i in "xxxx" %}
+                <a class="explore-card" href="{% url 'feed' %}" aria-label="Open Feed">
+                    <div class="explore-thumb"></div>
+                    <div class="explore-meta">
+                        <span class="pill">Trending</span>
+                        <span class="pill muted">Feelings</span>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
     </section>
+
+    <aside class="home-side">
+        <!-- Profile summary -->
+        <div class="profile-card compact">
+            <div class="avatar-wrapper">
+                <div class="avatar-placeholder">{{ user.username|first|upper }}</div>
+            </div>
+            <div class="profile-summary">
+                <div class="username">{{ user.username }}</div>
+                <div class="email">{% if user.email %}{{ user.email }}{% else %}Email not available{% endif %}</div>
+            </div>
+            <div class="profile-actions">
+                <a href="{% url 'feed' %}" class="btn secondary">View Feed</a>
+                <form action="{% url 'logout' %}" method="post" class="logout-form" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn danger">Logout</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Profile edit -->
+        <div class="profile-card" style="margin-top:1rem;">
+            <h3 class="section-title">Edit profile</h3>
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="form_type" value="profile" />
+                {% if profile_form %}
+                    {% for field in profile_form %}
+                        <div class="form-group">
+                            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                            {{ field }}
+                            {% if field.errors %}
+                                <p class="field-error">{% for error in field.errors %}{{ error }}{% endfor %}</p>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+                <button type="submit" class="btn primary">Save changes</button>
+            </form>
+        </div>
+
+        <!-- Connect (placeholders) -->
+        <div class="suggestions section">
+            <div class="section-title-row">
+                <h3 class="section-title"><span class="section-icon">🤝</span> Connect</h3>
+                <span class="muted small" title="Coming soon">Coming soon</span>
+            </div>
+            <ul class="suggestions-list">
+                {% for i in "xxx" %}
+                <li class="suggestion-item">
+                    <div class="sugg-avatar">U</div>
+                    <div class="sugg-meta">
+                        <strong>User {{ forloop.counter }}</strong>
+                        <small class="muted">Suggested</small>
+                    </div>
+                    <button class="sugg-action is-disabled" type="button" disabled title="Connect coming soon">Connect</button>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <!-- Trending feelings (show 1-2 neatly) -->
+        <div class="trends section">
+            <div class="section-title-row">
+                <h3 class="section-title"><span class="section-icon">💫</span> Trending feelings</h3>
+                <span class="muted small" title="More soon">Preview</span>
+            </div>
+            <ul class="trend-list compact">
+                <li><a href="{% url 'feed' %}">#gratitude</a></li>
+                <li><a href="{% url 'feed' %}">#support</a></li>
+            </ul>
+        </div>
+    </aside>
 
     {% else %}
     <section class="guest-section">
@@ -71,6 +132,18 @@
         <div class="auth-buttons">
             <a href="{% url 'login' %}" class="btn primary">Log In</a>
             <a href="{% url 'signup' %}" class="btn secondary">Sign Up</a>
+        </div>
+
+        <div class="guest-explore">
+            <h4 class="section-title" style="margin-top:1rem;">Explore what people are sharing</h4>
+            <div class="explore-grid">
+                {% for i in "xxxx" %}
+                <a class="explore-card" href="{% url 'feed' %}">
+                    <div class="explore-thumb"></div>
+                    <div class="explore-meta"><span class="pill">Popular</span></div>
+                </a>
+                {% endfor %}
+            </div>
         </div>
     </section>
     {% endif %}

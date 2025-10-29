@@ -6,7 +6,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth import login
 from django.db.models import Count
 from django.views.generic import UpdateView, DeleteView
-from .forms import UserRegistration, PostForm, CommentForm
+from .forms import UserRegistration, PostForm, CommentForm, ProfileForm
 from .models import Post, Profile, Comment, Like, Dislike
 from django.contrib.auth.models import User
 from django.contrib import messages # New Import for user feedback
@@ -28,14 +28,6 @@ class SignUpView(View):
         if form.is_valid():
             try:
                 user = form.save()
-                
-                # Automatically create profile
-                Profile.objects.create(
-                    user=user,
-                    username=user.username,
-                    email=user.email
-                )
-                
                 login(request, user)
                 return redirect('feed') # Redirect to feed after signup/login
             except Exception as e:
@@ -146,4 +138,29 @@ class ProfileView(LoginRequiredMixin, View):
         return render(request, self.template_name, {})
     
 def home(request):
-    return render(request, 'core/homepage.html')
+    profile_form = None
+    if request.user.is_authenticated:
+        # Ensure user has a profile object
+        profile, _ = Profile.objects.get_or_create(
+            user=request.user,
+            defaults={
+                'name': request.user.first_name or request.user.username,
+                'surname': request.user.last_name or '',
+                'email': request.user.email or f"{request.user.username}@example.com",
+            }
+        )
+
+        if request.method == 'POST' and request.POST.get('form_type') == 'profile':
+            profile_form = ProfileForm(request.POST, instance=profile)
+            if profile_form.is_valid():
+                profile_form.save()
+                messages.success(request, 'Profile updated successfully.')
+                return redirect('home')
+            else:
+                messages.error(request, 'Please fix the errors below.')
+        else:
+            profile_form = ProfileForm(instance=profile)
+
+    return render(request, 'core/homepage.html', {
+        'profile_form': profile_form,
+    })
