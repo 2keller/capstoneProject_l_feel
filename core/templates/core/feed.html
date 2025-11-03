@@ -5,7 +5,7 @@
 
 {% block content %}
 <div class="feed-container">
-    <h2 class="feed-title">🌍 Community Feed</h2>
+    <h2 class="feed-title">Connect with the world and share your feelings</h2>
 
   <div id="react-feed-root" style="margin-bottom: 1rem;"></div>
 
@@ -41,7 +41,7 @@
                     </div>
                 {% endfor %}
                 
-                <button type="submit" class="btn primary">➕ Post</button>
+                <button type="submit" class="btn primary">Post</button>
             </form>
         </div>
     {% else %}
@@ -52,14 +52,14 @@
 
     <div class="posts-list">
         {% for post in posts %}
-          <div class="post-card {% if post.like_count > 10 %}post-most-liked{% endif %}">
+          <div class="post-card {% if post.like_count > 10 %}post-most-liked{% endif %}" data-post-id="{{ post.id }}">
             <div class="post-header">
-              <div style="display:flex;align-items:center;gap:8px;">
-                <div class="avatar-placeholder" style="width:32px;height:32px;font-size:0.9rem;">{{ post.user.username|first|upper }}</div>
+              <div class="row-center gap-8">
+                <div class="avatar-placeholder avatar-sm">{{ post.user.username|first|upper }}</div>
                 <strong>{{ post.user.username }}</strong>
               </div>
-              <div style="display:flex;align-items:center;gap:8px;">
-                <span class="badge" style="background: var(--accent); color: var(--primary); padding:2px 8px; border-radius:999px; font-size: 0.75rem;">{{ post.emotion_type|title }}</span>
+              <div class="row-center gap-8">
+                <span class="badge">{{ post.emotion_type|title }}</span>
                 <small class="post-date">{{ post.created_at|date:"F j, Y, g:i a" }}</small>
               </div>
             </div>
@@ -70,21 +70,21 @@
 
             <div class="post-footer">
               {% if user.is_authenticated %}
-                <form action="{% url 'like_post' post.id %}" method="POST" style="display:inline;">
+                <form action="{% url 'like_post' post.id %}" method="POST" style="display:inline;" class="js-like-form">
                   {% csrf_token %}
                   <button type="submit" class="btn-action like-btn">
-                    👍 Like ({{ post.like_count }})
+                    Like (<span id="like-count-{{ post.id }}">{{ post.like_count }}</span>)
                   </button>
                 </form>
-                <form action="{% url 'dislike_post' post.id %}" method="POST" style="display:inline;">
+                <form action="{% url 'dislike_post' post.id %}" method="POST" style="display:inline;" class="js-dislike-form">
                   {% csrf_token %}
                   <button type="submit" class="btn-action dislike-btn">
-                    👎 Dislike ({{ post.dislike_count }})
+                    Dislike (<span id="dislike-count-{{ post.id }}">{{ post.dislike_count }}</span>)
                   </button>
                 </form>
               {% endif %}
-              <button class="toggle-comments-btn" onclick="toggleComments('comments-{{ post.id }}')">
-                💬 Comments ({{ post.comment_count }})
+              <button class="toggle-comments-btn" data-post-id="{{ post.id }}" onclick="toggleComments('comments-{{ post.id }}')">
+                Comments (<span id="comment-count-{{ post.id }}">{{ post.comment_count }}</span>)
               </button>
             </div>
 
@@ -95,7 +95,7 @@
                     This requires the comment_form to be passed to the template context.
                 {% endcomment %}
                 <div class="add-comment mt-2 border-t pt-2">
-                    <form action="{% url 'comment_post' post.id %}" method="POST">
+                    <form action="{% url 'comment_post' post.id %}" method="POST" class="js-comment-form" data-post-id="{{ post.id }}">
                         {% csrf_token %}
                         {{ comment_form.content }} 
                         <button type="submit" class="btn-comment">Comment</button>
@@ -118,4 +118,5 @@
     </div>
 </div>
 <script type="module" src="{% static 'frontend/assets/main.js' %}"></script>
+<script defer src="{% static 'js/feed.js' %}"></script>
 {% endblock %}

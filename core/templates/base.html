@@ -19,9 +19,9 @@
             <nav class="nav-primary">
                 {% url 'home' as home_url %}
                 {% url 'feed' as feed_url %}
-                <a href="{% url 'home' %}" class="nav-link{% if request.path == home_url %} active{% endif %}" aria-label="Home"{% if request.path == home_url %} aria-current="page"{% endif %}>🏠 <span class="nav-text">Home</span></a>
-                <a href="{% url 'feed' %}" class="nav-link{% if request.path == feed_url %} active{% endif %}" aria-label="Feed"{% if request.path == feed_url %} aria-current="page"{% endif %}>📰 <span class="nav-text">Feed</span></a>
-                <button id="themeToggle" class="nav-link" aria-label="Toggle dark mode">🌓</button>
+                <a href="{% url 'home' %}" class="nav-link{% if request.path == home_url %} active{% endif %}" aria-label="Home"{% if request.path == home_url %} aria-current="page"{% endif %}><span class="nav-text">Home</span></a>
+                <a href="{% url 'feed' %}" class="nav-link{% if request.path == feed_url %} active{% endif %}" aria-label="Feed"{% if request.path == feed_url %} aria-current="page"{% endif %}><span class="nav-text">Feed</span></a>
+                <button id="themeToggle" class="nav-link" aria-label="Toggle dark mode">Theme</button>
             </nav>
         </div>
     </header>
@@ -36,14 +36,14 @@
     <nav class="bottom-nav" aria-label="Primary">
         {% url 'home' as home_url %}
         {% url 'feed' as feed_url %}
-        <a href="{% url 'home' %}" class="bottom-link{% if request.path == home_url %} active{% endif %}" aria-label="Home"{% if request.path == home_url %} aria-current="page"{% endif %}>🏠<span>Home</span></a>
-        <a href="{% url 'feed' %}" class="bottom-link{% if request.path == feed_url %} active{% endif %}" aria-label="Feed"{% if request.path == feed_url %} aria-current="page"{% endif %}>📰<span>Feed</span></a>
-        <button id="themeToggleBottom" class="bottom-link" aria-label="Toggle dark mode">🌓<span>Theme</span></button>
+        <a href="{% url 'home' %}" class="bottom-link{% if request.path == home_url %} active{% endif %}" aria-label="Home"{% if request.path == home_url %} aria-current="page"{% endif %}><span>Home</span></a>
+        <a href="{% url 'feed' %}" class="bottom-link{% if request.path == feed_url %} active{% endif %}" aria-label="Feed"{% if request.path == feed_url %} aria-current="page"{% endif %}><span>Feed</span></a>
+        <button id="themeToggleBottom" class="bottom-link" aria-label="Toggle dark mode"><span>Theme</span></button>
     </nav>
 
     <!-- Footer -->
     <footer class="site-footer">
-        <p>🌍 One World, Different Feelings — <strong>Your Feelings Matter</strong></p>
+        <p>One World, Different Feelings — <strong>Your Feelings Matter</strong></p>
         <p>&copy; 2025 I Feel. All rights reserved.</p>
     </footer>
 
