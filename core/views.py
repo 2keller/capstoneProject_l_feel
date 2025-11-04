@@ -6,10 +6,11 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth import login
 from django.db.models import Count
 from django.views.generic import UpdateView, DeleteView
-from .forms import UserRegistration, PostForm, CommentForm
+from .forms import UserRegistration, PostForm, CommentForm, ProfileForm
 from .models import Post, Profile, Comment, Like, Dislike
 from django.contrib.auth.models import User
 from django.contrib import messages # New Import for user feedback
+from django.http import JsonResponse
 import logging
 
 logger = logging.getLogger(__name__)
@@ -28,14 +29,6 @@ class SignUpView(View):
         if form.is_valid():
             try:
                 user = form.save()
-                
-                # Automatically create profile
-                Profile.objects.create(
-                    user=user,
-                    username=user.username,
-                    email=user.email
-                )
-                
                 login(request, user)
                 return redirect('feed') # Redirect to feed after signup/login
             except Exception as e:
@@ -97,6 +90,18 @@ def comment_post(request, post_id):
             comment.user = request.user
             comment.post = post
             comment.save()
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'ok': True,
+                    'comment': {
+                        'user': comment.user.username,
+                        'content': comment.content,
+                        'created_at': comment.created_at.strftime('%b %d, %Y, %I:%M %p'),
+                        'is_supportive': comment.is_supportive,
+                    },
+                    'comment_count': post.comment_set.count(),
+                    'post_id': post.id,
+                })
     return redirect('feed')
 
 
@@ -107,6 +112,17 @@ def like_post(request, post_id):
     Like.objects.get_or_create(user=request.user, post=post)
     # Ensure any previous dislike is removed
     Dislike.objects.filter(user=request.user, post=post).delete()
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        counts = Post.objects.filter(id=post.id).annotate(
+            like_count=Count('like', distinct=True),
+            dislike_count=Count('dislike', distinct=True),
+            comment_count=Count('comment', distinct=True)
+        ).values('like_count', 'dislike_count', 'comment_count').first()
+        return JsonResponse({
+            'ok': True,
+            'post_id': post.id,
+            **counts,
+        })
     return redirect('feed')
 
 
@@ -117,6 +133,17 @@ def dislike_post(request, post_id):
     Dislike.objects.get_or_create(user=request.user, post=post)
     # Ensure any previous like is removed
     Like.objects.filter(user=request.user, post=post).delete()
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        counts = Post.objects.filter(id=post.id).annotate(
+            like_count=Count('like', distinct=True),
+            dislike_count=Count('dislike', distinct=True),
+            comment_count=Count('comment', distinct=True)
+        ).values('like_count', 'dislike_count', 'comment_count').first()
+        return JsonResponse({
+            'ok': True,
+            'post_id': post.id,
+            **counts,
+        })
     return redirect('feed')
 
 # ----------------------------------------------------------------------
@@ -143,7 +170,64 @@ class DeletePostView(LoginRequiredMixin, UserPostOwnerMixin, DeleteView):
 class ProfileView(LoginRequiredMixin, View):
     template_name = 'core/profile.html'
     def get(self, request):
-        return render(request, self.template_name, {})
+        profile, _ = Profile.objects.get_or_create(
+            user=request.user,
+            defaults={
+                'name': request.user.first_name or request.user.username,
+                'surname': request.user.last_name or '',
+                'email': request.user.email or f"{request.user.username}@example.com",
+            }
+        )
+        user_posts = Post.objects.filter(user=request.user).annotate(
+            like_count=Count('like', distinct=True),
+            dislike_count=Count('dislike', distinct=True),
+            comment_count=Count('comment', distinct=True),
+        ).order_by('-created_at')
+        total_posts = user_posts.count()
+        total_likes_received = Like.objects.filter(post__user=request.user).count()
+        total_supportive_comments = Comment.objects.filter(post__user=request.user, is_supportive=True).count()
+        context = {
+            'profile': profile,
+            'posts': user_posts[:10],
+            'stats': {
+                'total_posts': total_posts,
+                'total_likes_received': total_likes_received,
+                'total_supportive_comments': total_supportive_comments,
+            }
+        }
+        return render(request, self.template_name, context)
     
 def home(request):
-    return render(request, 'core/homepage.html')
+    profile_form = None
+    profile = None
+    if request.user.is_authenticated:
+        # Ensure user has a profile object
+        profile, _ = Profile.objects.get_or_create(
+            user=request.user,
+            defaults={
+                'name': request.user.first_name or request.user.username,
+                'surname': request.user.last_name or '',
+                'email': request.user.email or f"{request.user.username}@example.com",
+            }
+        )
+
+        if request.method == 'POST' and request.POST.get('form_type') == 'profile':
+            profile_form = ProfileForm(request.POST, instance=profile)
+            if profile_form.is_valid():
+                profile_form.save()
+                messages.success(request, 'Profile updated successfully.')
+                return redirect('home')
+            else:
+                messages.error(request, 'Please fix the errors below.')
+        else:
+            profile_form = ProfileForm(instance=profile)
+
+    recent_posts = []
+    if request.user.is_authenticated:
+        recent_posts = list(Post.objects.filter(user=request.user).order_by('-created_at')[:3])
+
+    return render(request, 'core/homepage.html', {
+        'profile_form': profile_form,
+        'profile': profile,
+        'recent_posts': recent_posts,
+    })

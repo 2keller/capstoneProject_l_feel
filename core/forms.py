@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
-from .models import Post, Comment
+from .models import Post, Comment, Profile
 
 
 TAILWIND_INPUT_CLASSES = 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500'
@@ -77,3 +77,20 @@ class CommentForm(forms.ModelForm):
             # Checkbox input often requires special styling and is left alone here
             'is_supportive': forms.CheckboxInput(), 
         }
+
+
+# --- Profile Form ---
+
+class ProfileForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Apply input styles
+        for name, field in self.fields.items():
+            field.widget.attrs.update({'class': TAILWIND_INPUT_CLASSES})
+        # Custom label and placeholder for bio
+        self.fields['bio'].label = 'What feeling do you want to spread'
+        self.fields['bio'].widget.attrs.update({'placeholder': 'Share a short vibe or message'})
+
+    class Meta:
+        model = Profile
+        fields = ['name', 'surname', 'bio']
