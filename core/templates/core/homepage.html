@@ -1,78 +1,138 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}Home | Profile{% endblock %}
 
 {% block content %}
-<div class="app-container">
-    <header class="app-header">
-        <h1 class="app-title">I Feel You</h1>
-        <p class="app-subtitle">One World, Different Feelings 🌍</p>
-    </header>
+<div class="app-container home-grid">
+  <header class="app-header">
+    <h1 class="app-title" style="margin-bottom:0.25rem;">Share your feelings. Find your people. 💬💜</h1>
+    <p class="app-subtitle" style="margin-top:0;">A kinder space to express yourself and connect with others.</p>
+  </header>
 
-    {% if user.is_authenticated %}
-    <section class="profile-section">
-        <div class="profile-card">
-            <div class="avatar-wrapper">
-                
-                {% comment %} 💡 CRITICAL FIX: Check if the Profile exists first {% endcomment %}
-                {% if user.profile %}
-                    {% if user.profile.avatar %}
-                        <img src="{{ user.profile.avatar.url }}" alt="Avatar" class="avatar-img">
-                    {% else %}
-                        <div class="avatar-placeholder">{{ user.username|first|upper }}</div>
-                    {% endif %}
-                {% else %}
-                    {# Default placeholder if no profile object exists at all #}
-                    <div class="avatar-placeholder">?</div> 
-                {% endif %}
+  {% if user.is_authenticated %}
+  <section class="home-main">
+    <!-- Friendly CTA row -->
+    <div class="quick-actions">
+      <a class="qa-btn primary" href="{% url 'feed' %}">➕ Start a Post</a>
+      <a class="qa-btn" href="{% url 'feed' %}">📰 Open Feed</a>
+      <a class="qa-btn" href="{% url 'feed' %}">💬 Check Comments</a>
+      <button class="qa-btn" type="button" disabled title="More coming soon">✨ More soon</button>
+    </div>
+
+    <!-- Gentle guidance section -->
+    <div class="section" style="margin-top: 0.75rem;">
+      <h3 class="section-title"><span class="section-icon">💡</span> Tips for a kinder space</h3>
+      <ul class="trend-list compact" style="margin-top: 6px;">
+        <li>Be respectful and honest—someone out there relates to you.</li>
+        <li>Mark supportive comments to highlight kindness.</li>
+      </ul>
+    </div>
+
+    {% if recent_posts %}
+    <div class="section" style="margin-top: 0.75rem;">
+      <h3 class="section-title"><span class="section-icon">🕒</span> Your recent posts</h3>
+      <div class="posts-list" style="margin-top: 6px;">
+        {% for rp in recent_posts %}
+        <div class="post-card">
+          <div class="post-header">
+            <div class="row-center gap-8">
+              <div class="avatar-placeholder avatar-sm">{{ user.username|first|upper }}</div>
+              <strong>{{ user.username }}</strong>
             </div>
-
-            <h2 class="username">{{ user.username }}</h2>
-            
-            <p class="email">
-                {% comment %} Guard against missing user.email if using non-standard auth {% endcomment %}
-                {% if user.email %}
-                    {{ user.email }}
-                {% else %}
-                    Email not available
-                {% endif %}
-            </p>
-
-            {% if user.profile %}
-                <p class="bio {% if not user.profile.bio %}empty{% endif %}">
-                    {% if user.profile.bio %}“{{ user.profile.bio }}”{% else %}No bio yet — share how you feel 💭{% endif %}
-                </p>
-                {% if user.profile.date_of_birth %}
-                    <p class="dob">🎂 {{ user.profile.date_of_birth }}</p>
-                {% endif %}
-            {% else %}
-                {# Display a prompt if the Profile model is missing for the user #}
-                <p class="error-text">⚠️ **Profile data missing.** Please create your profile or contact support.</p>
-            {% endif %}
+            <div class="row-center gap-8">
+              <span class="badge">{{ rp.emotion_type|title }}</span>
+              <small class="post-date">{{ rp.created_at|date:"F j, Y, g:i a" }}</small>
+            </div>
+          </div>
+          <div class="post-body"><p>{{ rp.content }}</p></div>
         </div>
-
-        <div class="button-group">
-            <a href="{% url 'feed' %}" class="btn primary">Go to Feed</a>
-            {# NOTE: Ensure you have a URL pattern named 'edit_profile' defined #}
-            <a href="{% url 'edit_profile' %}" class="btn secondary">Edit Profile</a> 
-        </div>
-
-        <form action="{% url 'logout' %}" method="post" class="logout-form">
-            {% csrf_token %}
-            <button type="submit" class="btn danger">Logout</button>
-        </form>
-    </section>
-
-    {% else %}
-    <section class="guest-section">
-        <h3>Welcome to I Feel You</h3>
-        <p class="guest-text">A place to share your thoughts and emotions with the community.</p>
-
-        <div class="auth-buttons">
-            <a href="{% url 'login' %}" class="btn primary">Log In</a>
-            <a href="{% url 'signup' %}" class="btn secondary">Sign Up</a>
-        </div>
-    </section>
+        {% endfor %}
+      </div>
+    </div>
     {% endif %}
+  </section>
+
+  <aside class="home-side">
+    <!-- Profile summary -->
+    <div class="profile-card compact">
+      <div class="avatar-wrapper">
+        <div class="avatar-placeholder">{{ user.username|first|upper }}</div>
+      </div>
+      <div class="profile-summary">
+        <div class="username">{{ user.username }}</div>
+        <div class="email">{% if user.email %}{{ user.email }}{% else %}Email not available{% endif %}</div>
+        {% if profile %}
+        <div class="bio{% if not profile.bio %} empty{% endif %}" style="margin-top:0.25rem;">
+          {% if profile.bio %}{{ profile.bio }}{% else %}No bio yet. Share a short vibe or message.{% endif %}
+        </div>
+        <div class="small muted" style="margin-top:0.25rem;">
+          Name: {{ profile.name }} {{ profile.surname }}
+        </div>
+        {% endif %}
+      </div>
+      <div class="profile-actions">
+        <button type="button" class="btn secondary" id="openProfileModal">Edit Profile</button>
+        <a href="{% url 'profile' %}" class="btn secondary">View Profile</a>
+        <a href="{% url 'feed' %}" class="btn secondary">Open Feed</a>
+        <form action="{% url 'logout' %}" method="post" class="logout-form" style="display:inline; margin-top:0.5rem;">
+          {% csrf_token %}
+          <button type="submit" class="btn danger">Logout</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Profile Edit Modal -->
+    <div id="profileModal" class="modal hidden" aria-hidden="true" role="dialog" aria-modal="true" style="position:fixed; inset:0; align-items:center; justify-content:center; background:rgba(0,0,0,0.4); z-index:60;">
+      <div class="profile-card" style="max-width:520px; width:92%;">
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+          <h3 class="section-title" style="margin:0;">Edit profile</h3>
+          <button type="button" id="closeProfileModal" class="btn secondary" style="padding:6px 10px;">Close</button>
+        </div>
+        <form method="post" style="margin-top:0.75rem;">
+          {% csrf_token %}
+          <input type="hidden" name="form_type" value="profile" />
+          {% if profile_form %}
+          {% for field in profile_form %}
+          <div class="form-group" style="margin-bottom:0.8rem;">
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {% if field.errors %}
+            <p class="field-error">{% for error in field.errors %}{{ error }}{% endfor %}</p>
+            {% endif %}
+          </div>
+          {% endfor %}
+          {% endif %}
+          <button type="submit" class="btn primary btn-full">Save changes</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Small trends preview -->
+    <div class="trends section">
+      <div class="section-title-row">
+        <h3 class="section-title"><span class="section-icon">💫</span> Trending feelings</h3>
+        <span class="muted small">Preview</span>
+      </div>
+      <ul class="trend-list compact">
+        <li><a href="{% url 'feed' %}">#gratitude</a></li>
+        <li><a href="{% url 'feed' %}">#support</a></li>
+      </ul>
+    </div>
+  </aside>
+
+  {% else %}
+  <section class="guest-section">
+    <h3>Welcome to I Feel You</h3>
+    <p class="guest-text">A kind, supportive space to express your feelings.</p>
+    <div class="auth-buttons">
+      <a href="{% url 'login' %}" class="btn primary">Log In</a>
+      <a href="{% url 'signup' %}" class="btn secondary">Sign Up</a>
+    </div>
+  </section>
+  {% endif %}
 </div>
+<script defer src="{% static 'js/home.js' %}"></script>
 {% endblock %}
+<-- ok l want feel to have only a good ui no emojois nothing else -->
+<-- nothing else it must only contain a good ui -->

@@ -9,6 +9,7 @@ from .views import (
     EditPostView,
     DeletePostView,
     home,
+    ProfileView,
 )
 
 urlpatterns = [
@@ -25,4 +26,5 @@ urlpatterns = [
     path('post/<int:post_id>/dislike/', dislike_post, name='dislike_post'),
     path('post/<int:pk>/edit/', EditPostView.as_view(), name='edit_post'),
     path('post/<int:pk>/delete/', DeletePostView.as_view(), name='delete_post'),
+    path('profile/', ProfileView.as_view(), name='profile'),
 ]

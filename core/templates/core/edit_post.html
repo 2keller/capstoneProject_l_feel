@@ -9,11 +9,11 @@
   <form method="post">
     {% csrf_token %}
     {{ form.as_p }}
-    <button type="submit" class="btn primary">💾 Save Changes</button>
+    <button type="submit" class="btn primary">Save Changes</button>
   </form>
 
   <p class="form-footer">
-    <a href="{% url 'feed' %}">← Back to Feed</a>
+    <a href="{% url 'feed' %}">Back to Feed</a>
   </p>
 </div>
 {% endblock %}
