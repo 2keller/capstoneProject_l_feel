@@ -34,9 +34,9 @@ ALLOWED_HOSTS = ["l-feel.onrender.com", "localhost", "127.0.0.1"]
 
 
 if os.getenv('RENDER', False):
-    SITE_ID = 2  # ID for your Render site
+    SITE_ID = 6  # ID for your Render site
 else:
-    SITE_ID = 7# ID for localhost
+    SITE_ID = 7  # ID for localhost
 
 
 
