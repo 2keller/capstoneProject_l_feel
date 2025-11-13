@@ -1,60 +1,72 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Your Profile{% endblock %}
+{% block title %}Profile{% endblock %}
 
 {% block content %}
-<div class="app-container" style="gap: 1rem;">
-  <div class="profile-card" style="max-width: 720px; width:100%; margin: 0 auto;">
-    <div class="row-between" style="display:flex; align-items:center; justify-content:space-between; gap: 12px; flex-wrap: wrap;">
-      <div class="row-center gap-8">
-        <div class="avatar-placeholder avatar-md">{{ profile.user.username|first|upper }}</div>
+<div class="app-container">
+  <div class="profile-card max-w-2xl mx-auto">
+    <div class="flex items-center justify-between gap-4 mb-4" style="flex-wrap: wrap;">
+      <div class="flex items-center gap-3">
+        <div class="avatar-placeholder avatar-lg">{{ profile.user.username|first|upper }}</div>
         <div>
-          <div class="username" style="font-size:1.25rem;">{{ profile.name }} {{ profile.surname }}</div>
+          <div class="username text-xl">{{ profile.name }} {{ profile.surname }}</div>
           <div class="email">{{ profile.email }}</div>
         </div>
       </div>
-      <div class="row-center gap-8">
-        <a href="{% url 'home' %}" class="btn secondary">Home</a>
-        <a href="{% url 'feed' %}" class="btn secondary">Open Feed</a>
+      <div class="flex gap-2" style="flex-wrap: wrap;">
+        <button type="button" class="btn secondary" id="openProfileModal">Edit</button>
+        <a href="{% url 'feed' %}" class="btn primary">Feed</a>
       </div>
     </div>
 
-    <div style="margin-top: 1rem;" class="bio{% if not profile.bio %} empty{% endif %}">
-      {% if profile.bio %}{{ profile.bio }}{% else %}No bio yet. Click Edit Profile on the homepage to add one.{% endif %}
+    {% if profile.bio %}
+    <div class="bio">{{ profile.bio }}</div>
+    {% endif %}
+
+    <div class="section">
+      <h3 class="section-title">Stats</h3>
+      <div class="flex gap-6" style="flex-wrap: wrap;">
+        <div>
+          <div class="text-2xl font-bold text-primary">{{ stats.total_posts }}</div>
+          <div class="text-sm text-secondary">Posts</div>
+        </div>
+        <div>
+          <div class="text-2xl font-bold text-primary">{{ stats.total_likes_received }}</div>
+          <div class="text-sm text-secondary">Agreements</div>
+        </div>
+        <div>
+          <div class="text-2xl font-bold text-primary">{{ stats.total_supportive_comments }}</div>
+          <div class="text-sm text-secondary">Support</div>
+        </div>
+      </div>
     </div>
 
-    <div class="section" style="margin-top: 1rem;">
-      <h3 class="section-title"><span class="section-icon"></span> Your stats</h3>
-      <ul class="trend-list compact" style="margin-top: 6px;">
-        <li>Total posts: <strong>{{ stats.total_posts }}</strong></li>
-        <li>Likes received: <strong>{{ stats.total_likes_received }}</strong></li>
-        <li>Supportive comments on your posts: <strong>{{ stats.total_supportive_comments }}</strong></li>
-      </ul>
-    </div>
-
-    <div class="section" style="margin-top: 1rem;">
-      <h3 class="section-title"><span class="section-icon"></span> Recent posts</h3>
-      <div class="posts-list" style="margin-top: 6px;">
+    <div class="section">
+      <h3 class="section-title">Recent Posts</h3>
+      <div class="posts-list">
         {% for p in posts %}
         <div class="post-card">
           <div class="post-header">
-            <div class="row-center gap-8">
+            <div class="flex items-center gap-2">
               <div class="avatar-placeholder avatar-sm">{{ profile.user.username|first|upper }}</div>
               <strong>{{ profile.user.username }}</strong>
             </div>
-            <div class="row-center gap-8">
+            <div class="flex items-center gap-2">
               <span class="badge">{{ p.emotion_type|title }}</span>
-              <small class="post-date">{{ p.created_at|date:"F j, Y, g:i a" }}</small>
+              <small class="post-date">{{ p.created_at|date:"M j" }}</small>
             </div>
           </div>
           <div class="post-body"><p>{{ p.content }}</p></div>
         </div>
         {% empty %}
-        <p class="muted">No posts yet.</p>
+        <p class="text-center text-muted">No posts yet</p>
         {% endfor %}
       </div>
     </div>
+    
+    {% include 'includes/profile_modal.html' %}
   </div>
 </div>
+<script defer src="{% static 'js/home.js' %}"></script>
 {% endblock %}

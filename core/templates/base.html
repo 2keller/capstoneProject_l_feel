@@ -6,80 +6,60 @@
     <title>{% block title %}I Feel — Your Feelings Matter{% endblock %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="{% static 'images/favicon.ico' %}">
+    
+    <!-- Prevent theme FOUC -->
+    <script>
+      (function() {
+        try {
+          const stored = localStorage.getItem('theme');
+          const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          if (stored === 'dark' || (!stored && prefersDark)) {
+            document.documentElement.classList.add('theme-dark');
+          }
+        } catch (e) {}
+      })();
+    </script>
+    
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 </head>
 <body>
-    <!-- Header / Navigation -->
+    <div id="aria-live-region" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+    
     <header class="topbar">
         <div class="topbar-inner">
-            <a href="{% url 'home' %}" class="brand" aria-label="I Feel Home">
+            <a href="{% url 'home' %}" class="brand">
                 <span class="brand-mark">IF</span>
                 <span class="brand-text">I Feel</span>
             </a>
             <nav class="nav-primary">
                 {% url 'home' as home_url %}
                 {% url 'feed' as feed_url %}
-                <a href="{% url 'home' %}" class="nav-link{% if request.path == home_url %} active{% endif %}" aria-label="Home"{% if request.path == home_url %} aria-current="page"{% endif %}><span class="nav-text">Home</span></a>
-                <a href="{% url 'feed' %}" class="nav-link{% if request.path == feed_url %} active{% endif %}" aria-label="Feed"{% if request.path == feed_url %} aria-current="page"{% endif %}><span class="nav-text">Feed</span></a>
-                <button id="themeToggle" class="nav-link" aria-label="Toggle dark mode">Theme</button>
+                <a href="{% url 'home' %}" class="nav-link{% if request.path == home_url %} active{% endif %}">Home</a>
+                <a href="{% url 'feed' %}" class="nav-link{% if request.path == feed_url %} active{% endif %}">Feed</a>
+                <button id="themeToggle" class="nav-link" aria-label="Toggle theme">Theme</button>
             </nav>
         </div>
     </header>
 
-    <!-- Main Content -->
     <main>
         {% block content %}
         {% endblock %}
     </main>
 
-    <!-- Mobile Bottom Navigation -->
-    <nav class="bottom-nav" aria-label="Primary">
+    <nav class="bottom-nav">
         {% url 'home' as home_url %}
         {% url 'feed' as feed_url %}
-        <a href="{% url 'home' %}" class="bottom-link{% if request.path == home_url %} active{% endif %}" aria-label="Home"{% if request.path == home_url %} aria-current="page"{% endif %}><span>Home</span></a>
-        <a href="{% url 'feed' %}" class="bottom-link{% if request.path == feed_url %} active{% endif %}" aria-label="Feed"{% if request.path == feed_url %} aria-current="page"{% endif %}><span>Feed</span></a>
-        <button id="themeToggleBottom" class="bottom-link" aria-label="Toggle dark mode"><span>Theme</span></button>
+        <a href="{% url 'home' %}" class="bottom-link{% if request.path == home_url %} active{% endif %}"><span>Home</span></a>
+        <a href="{% url 'feed' %}" class="bottom-link{% if request.path == feed_url %} active{% endif %}"><span>Feed</span></a>
+        <button id="themeToggleBottom" class="bottom-link" aria-label="Toggle theme"><span>Theme</span></button>
     </nav>
 
-    <!-- Footer -->
     <footer class="site-footer">
-        <p>One World, Different Feelings — <strong>Your Feelings Matter</strong></p>
         <p>&copy; 2025 I Feel. All rights reserved.</p>
     </footer>
 
-    <!-- Comments Toggle + Theme Script -->
-    <script>
-      function toggleComments(commentId) {
-          const commentSection = document.getElementById(commentId);
-          if (commentSection.classList.contains('hidden')) {
-              commentSection.classList.remove('hidden');
-          } else {
-              commentSection.classList.add('hidden');
-          }
-      }
-
-      (function themeInit(){
-        try {
-          const stored = localStorage.getItem('theme');
-          if (stored === 'dark') {
-            document.documentElement.classList.add('theme-dark');
-          }
-        } catch (e) {}
-      })();
-
-      (function attachThemeToggle(){
-        try {
-          var btns = [document.getElementById('themeToggle'), document.getElementById('themeToggleBottom')].filter(Boolean);
-          if (!btns.length) return;
-          function toggleTheme(){
-            var root = document.documentElement;
-            var isDark = root.classList.toggle('theme-dark');
-            try { localStorage.setItem('theme', isDark ? 'dark' : 'light'); } catch(e) {}
-          }
-          btns.forEach(function(b){ b.addEventListener('click', toggleTheme); });
-        } catch (e) {}
-      })();
-    </script>
+    <!-- Base scripts -->
+    <script defer src="{% static 'js/base.js' %}"></script>
 </body>
 </html>
 

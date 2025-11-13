@@ -1,23 +1,23 @@
-# 🧠 I Feel: Community Expression Platform
+# I Feel: Community Expression Platform
 
 *A Django-powered social web application designed to foster genuine emotional sharing and community support.*
 
 ---
 
-## 🛠️ Core Functionality
+## Core Functionality
 
 | Feature              | Description                                                                 |
 |----------------------|-----------------------------------------------------------------------------|
 | **User Authentication** | Secure signup, login, and profile creation.                                 |
 | **Post Management**      | Full CRUD (Create, Read, Update, Delete) support for all user posts.        |
 | **Emotional Tagging**    | Posts must be tagged with an emotion (e.g., happy, sad) for context.        |
-| **Reaction System**      | Users can provide feedback via Likes and Dislikes.                         |
+| **Reaction System**      | Users can provide feedback via Agreements and Disagreements.               |
 | **Supportive Comments**  | Standard commenting, with the option to mark comments as explicitly supportive. |
 | **Responsive Feed**      | Clean, scrollable feed view optimized for all devices.                     |
 
 ---
 
-## 💻 Tech Stack
+## Tech Stack
 
 | Category   | Technology               | Key Components                                      |
 |------------|--------------------------|-----------------------------------------------------|
@@ -28,7 +28,7 @@
 
 ---
 
-## 👤 Author
+## Author
 
 **Project by Kelvin Mashayamombe**  
 Connect on [LinkedIn](https://www.linkedin.com/in/kelvin-mashayamombe)

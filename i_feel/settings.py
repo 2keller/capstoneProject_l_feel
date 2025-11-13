@@ -24,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-u_-8jwhsb^xs3nv(7wv@-3g%6h1zoe!4e$x05l-pvlcg3(odx7'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ["l-feel.onrender.com", "localhost", "127.0.0.1"]
 
@@ -33,11 +33,11 @@ ALLOWED_HOSTS = ["l-feel.onrender.com", "localhost", "127.0.0.1"]
 
 
 
-if os.getenv('RENDER', False):
-    SITE_ID = 6  # ID for your Render site
-else:
-    SITE_ID = 7  # ID for localhost
 
+if os.getenv('RENDER', '').lower() == 'true' or 'onrender.com' in os.getenv('RENDER_EXTERNAL_HOSTNAME', ''):
+    SITE_ID = 9  # production (Render)
+else:
+    SITE_ID = 7  # local development
 
 
 INSTALLED_APPS = [
@@ -169,4 +169,3 @@ CSRF_TRUSTED_ORIGINS = ["https://l-feel.onrender.com"]
 
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
-ACCOUNT_DEFAULT_HTTP_PROTOCOL = 'https'

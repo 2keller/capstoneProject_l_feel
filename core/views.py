@@ -170,14 +170,22 @@ class DeletePostView(LoginRequiredMixin, UserPostOwnerMixin, DeleteView):
 class ProfileView(LoginRequiredMixin, View):
     template_name = 'core/profile.html'
     def get(self, request):
-        profile, _ = Profile.objects.get_or_create(
-            user=request.user,
-            defaults={
-                'name': request.user.first_name or request.user.username,
-                'surname': request.user.last_name or '',
-                'email': request.user.email or f"{request.user.username}@example.com",
-            }
-        )
+        # Check if profile already exists
+        try:
+            profile = Profile.objects.get(user=request.user)
+        except Profile.DoesNotExist:
+            # Determine a unique email for the new profile
+            if request.user.email and not Profile.objects.filter(email=request.user.email).exists():
+                email = request.user.email
+            else:
+                email = f"{request.user.username}_{request.user.id}@example.com"
+            
+            profile = Profile.objects.create(
+                user=request.user,
+                name=request.user.first_name or request.user.username,
+                surname=request.user.last_name or '',
+                email=email,
+            )
         user_posts = Post.objects.filter(user=request.user).annotate(
             like_count=Count('like', distinct=True),
             dislike_count=Count('dislike', distinct=True),
@@ -202,14 +210,21 @@ def home(request):
     profile = None
     if request.user.is_authenticated:
         # Ensure user has a profile object
-        profile, _ = Profile.objects.get_or_create(
-            user=request.user,
-            defaults={
-                'name': request.user.first_name or request.user.username,
-                'surname': request.user.last_name or '',
-                'email': request.user.email or f"{request.user.username}@example.com",
-            }
-        )
+        try:
+            profile = Profile.objects.get(user=request.user)
+        except Profile.DoesNotExist:
+            # Determine a unique email for the new profile
+            if request.user.email and not Profile.objects.filter(email=request.user.email).exists():
+                email = request.user.email
+            else:
+                email = f"{request.user.username}_{request.user.id}@example.com"
+            
+            profile = Profile.objects.create(
+                user=request.user,
+                name=request.user.first_name or request.user.username,
+                surname=request.user.last_name or '',
+                email=email,
+            )
 
         if request.method == 'POST' and request.POST.get('form_type') == 'profile':
             profile_form = ProfileForm(request.POST, instance=profile)

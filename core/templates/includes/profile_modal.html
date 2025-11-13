@@ -1,0 +1,24 @@
+<div id="profileModal" class="modal hidden">
+  <div class="profile-card" style="max-width: 500px; width: 92%;">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-xl font-semibold">Edit Profile</h3>
+      <button type="button" id="closeProfileModal" class="btn secondary">Close</button>
+    </div>
+    <form method="post">
+      {% csrf_token %}
+      <input type="hidden" name="form_type" value="profile" />
+      {% if profile_form %}
+      {% for field in profile_form %}
+      <div class="form-group">
+        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {{ field }}
+        {% if field.errors %}
+        <p class="field-error">{% for error in field.errors %}{{ error }}{% endfor %}</p>
+        {% endif %}
+      </div>
+      {% endfor %}
+      {% endif %}
+      <button type="submit" class="btn primary btn-full">Save</button>
+    </form>
+  </div>
+</div>

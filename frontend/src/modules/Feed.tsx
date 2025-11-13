@@ -2,21 +2,51 @@ import React from 'react'
 
 export function Feed() {
   const [q, setQ] = React.useState('')
+  const [filter, setFilter] = React.useState('all')
+  const [debouncedQ, setDebouncedQ] = React.useState('')
 
+  // Debounce search input
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedQ(q)
+    }, 300)
+    return () => clearTimeout(timer)
+  }, [q])
+
+  // Filter posts based on search and emotion
   React.useEffect(() => {
     const cards = Array.from(document.querySelectorAll<HTMLElement>('.posts-list .post-card'))
-    const query = q.trim().toLowerCase()
     if (!cards.length) return
-    if (!query) {
-      cards.forEach(c => c.style.display = '')
-      return
-    }
+    
+    const query = debouncedQ.trim().toLowerCase()
+    
     cards.forEach(card => {
-      const text = (card.textContent || '').toLowerCase()
-      const match = text.includes(query)
-      card.style.display = match ? '' : 'none'
+      let show = true
+      
+      // Text search filter
+      if (query) {
+        const text = (card.textContent || '').toLowerCase()
+        show = text.includes(query)
+      }
+      
+      // Emotion filter
+      if (show && filter !== 'all') {
+        const badge = card.querySelector('.badge')
+        const emotion = badge ? badge.textContent?.toLowerCase().trim() : ''
+        show = emotion === filter.toLowerCase()
+      }
+      
+      card.style.display = show ? '' : 'none'
     })
-  }, [q])
+    
+    // Announce filter results to screen readers
+    const visibleCount = cards.filter(c => c.style.display !== 'none').length
+    const liveRegion = document.getElementById('aria-live-region')
+    if (liveRegion && (query || filter !== 'all')) {
+      liveRegion.textContent = `Showing ${visibleCount} post${visibleCount !== 1 ? 's' : ''}`
+      setTimeout(() => { liveRegion.textContent = '' }, 1000)
+    }
+  }, [debouncedQ, filter])
 
   return (
     <div className="create-post-card" style={{ marginBottom: 16 }}>
@@ -37,10 +67,31 @@ export function Feed() {
           aria-label="Search posts"
           style={{ padding: '10px', borderRadius: 10, border: '1px solid var(--border)' }}
         />
-        <div style={{ display: 'flex', gap: 8, alignItems: 'center', justifyContent: 'flex-end' }}>
-          <span className="pill">Happy</span>
-          <span className="pill">Sad</span>
-          <span className="pill muted">All</span>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
+          <button 
+            className={filter === 'all' ? 'pill' : 'pill muted'} 
+            onClick={() => setFilter('all')}
+            aria-pressed={filter === 'all'}
+            style={{ cursor: 'pointer', border: 'none', background: 'transparent' }}
+          >
+            All
+          </button>
+          <button 
+            className={filter === 'happy' ? 'pill' : 'pill muted'} 
+            onClick={() => setFilter('happy')}
+            aria-pressed={filter === 'happy'}
+            style={{ cursor: 'pointer', border: 'none', background: 'transparent' }}
+          >
+            Happy
+          </button>
+          <button 
+            className={filter === 'sad' ? 'pill' : 'pill muted'} 
+            onClick={() => setFilter('sad')}
+            aria-pressed={filter === 'sad'}
+            style={{ cursor: 'pointer', border: 'none', background: 'transparent' }}
+          >
+            Sad
+          </button>
         </div>
       </div>
 

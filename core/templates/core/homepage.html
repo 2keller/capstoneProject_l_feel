@@ -6,38 +6,38 @@
 {% block content %}
 <div class="app-container home-grid">
   <header class="app-header">
-    <h1 class="app-title" style="margin-bottom:0.25rem;">Share your feelings. Find your people. 💬💜</h1>
-    <p class="app-subtitle" style="margin-top:0;">A kinder space to express yourself and connect with others.</p>
+    <h1 class="app-title mb-1">Share your feelings. Find your people.</h1>
+    <p class="app-subtitle mt-0">A kinder space to express yourself and connect with others.</p>
   </header>
 
   {% if user.is_authenticated %}
   <section class="home-main">
     <!-- Friendly CTA row -->
     <div class="quick-actions">
-      <a class="qa-btn primary" href="{% url 'feed' %}">➕ Start a Post</a>
-      <a class="qa-btn" href="{% url 'feed' %}">📰 Open Feed</a>
-      <a class="qa-btn" href="{% url 'feed' %}">💬 Check Comments</a>
-      <button class="qa-btn" type="button" disabled title="More coming soon">✨ More soon</button>
+      <a class="qa-btn primary" href="{% url 'feed' %}">Start a Post</a>
+      <a class="qa-btn" href="{% url 'feed' %}">Open Feed</a>
+      <a class="qa-btn" href="{% url 'feed' %}">Check Comments</a>
+      <button class="qa-btn" type="button" disabled title="More coming soon">More soon</button>
     </div>
 
     <!-- Gentle guidance section -->
-    <div class="section" style="margin-top: 0.75rem;">
-      <h3 class="section-title"><span class="section-icon">💡</span> Tips for a kinder space</h3>
-      <ul class="trend-list compact" style="margin-top: 6px;">
+    <div class="section mt-3">
+      <h3 class="section-title"><span class="section-icon"></span> Tips for a kinder space</h3>
+      <ul class="trend-list compact mt-2">
         <li>Be respectful and honest—someone out there relates to you.</li>
         <li>Mark supportive comments to highlight kindness.</li>
       </ul>
     </div>
 
     {% if recent_posts %}
-    <div class="section" style="margin-top: 0.75rem;">
-      <h3 class="section-title"><span class="section-icon">🕒</span> Your recent posts</h3>
-      <div class="posts-list" style="margin-top: 6px;">
+    <div class="section mt-3">
+      <h3 class="section-title"><span class="section-icon"></span> Your recent posts</h3>
+      <div class="posts-list mt-2">
         {% for rp in recent_posts %}
         <div class="post-card">
           <div class="post-header">
             <div class="row-center gap-8">
-              <div class="avatar-placeholder avatar-sm">{{ user.username|first|upper }}</div>
+              <div class="avatar-placeholder">{{ user.username|first|upper }}</div>
               <strong>{{ user.username }}</strong>
             </div>
             <div class="row-center gap-8">
@@ -63,10 +63,10 @@
         <div class="username">{{ user.username }}</div>
         <div class="email">{% if user.email %}{{ user.email }}{% else %}Email not available{% endif %}</div>
         {% if profile %}
-        <div class="bio{% if not profile.bio %} empty{% endif %}" style="margin-top:0.25rem;">
+        <div class="bio{% if not profile.bio %} empty{% endif %} mt-1">
           {% if profile.bio %}{{ profile.bio }}{% else %}No bio yet. Share a short vibe or message.{% endif %}
         </div>
-        <div class="small muted" style="margin-top:0.25rem;">
+        <div class="small muted mt-1">
           Name: {{ profile.name }} {{ profile.surname }}
         </div>
         {% endif %}
@@ -75,43 +75,19 @@
         <button type="button" class="btn secondary" id="openProfileModal">Edit Profile</button>
         <a href="{% url 'profile' %}" class="btn secondary">View Profile</a>
         <a href="{% url 'feed' %}" class="btn secondary">Open Feed</a>
-        <form action="{% url 'logout' %}" method="post" class="logout-form" style="display:inline; margin-top:0.5rem;">
+        <form action="{% url 'logout' %}" method="post" class="logout-form mt-2">
           {% csrf_token %}
           <button type="submit" class="btn danger">Logout</button>
         </form>
       </div>
     </div>
 
-    <!-- Profile Edit Modal -->
-    <div id="profileModal" class="modal hidden" aria-hidden="true" role="dialog" aria-modal="true" style="position:fixed; inset:0; align-items:center; justify-content:center; background:rgba(0,0,0,0.4); z-index:60;">
-      <div class="profile-card" style="max-width:520px; width:92%;">
-        <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
-          <h3 class="section-title" style="margin:0;">Edit profile</h3>
-          <button type="button" id="closeProfileModal" class="btn secondary" style="padding:6px 10px;">Close</button>
-        </div>
-        <form method="post" style="margin-top:0.75rem;">
-          {% csrf_token %}
-          <input type="hidden" name="form_type" value="profile" />
-          {% if profile_form %}
-          {% for field in profile_form %}
-          <div class="form-group" style="margin-bottom:0.8rem;">
-            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-            {{ field }}
-            {% if field.errors %}
-            <p class="field-error">{% for error in field.errors %}{{ error }}{% endfor %}</p>
-            {% endif %}
-          </div>
-          {% endfor %}
-          {% endif %}
-          <button type="submit" class="btn primary btn-full">Save changes</button>
-        </form>
-      </div>
-    </div>
+    {% include 'includes/profile_modal.html' %}
 
     <!-- Small trends preview -->
     <div class="trends section">
       <div class="section-title-row">
-        <h3 class="section-title"><span class="section-icon">💫</span> Trending feelings</h3>
+        <h3 class="section-title"><span class="section-icon"></span> Trending feelings</h3>
         <span class="muted small">Preview</span>
       </div>
       <ul class="trend-list compact">
@@ -134,5 +110,6 @@
 </div>
 <script defer src="{% static 'js/home.js' %}"></script>
 {% endblock %}
-<-- ok l want feel to have only a good ui no emojois nothing else -->
-<-- nothing else it must only contain a good ui -->
+
+
+

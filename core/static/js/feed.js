@@ -4,6 +4,14 @@
     return m ? m.pop() : '';
   }
   const csrf = getCookie('csrftoken');
+  
+  // Announce to screen readers
+  function announce(message) {
+    const liveRegion = document.getElementById('aria-live-region');
+    if (!liveRegion) return;
+    liveRegion.textContent = message;
+    setTimeout(() => { liveRegion.textContent = ''; }, 1000);
+  }
 
   function isAjaxOk(res){ return res && (res.ok || res.status === 200); }
 
@@ -74,9 +82,20 @@
       setBusy(btn, true);
       try {
         const data = await ajaxSubmit(form);
-        if (data && data.ok){ updateCounts(data.post_id, data); }
-        else { if (likeCountEl) likeCountEl.textContent = String(original); if (btn) btn.classList.remove('active'); }
-      } catch(err) { if (likeCountEl) likeCountEl.textContent = String(original); if (btn) btn.classList.remove('active'); }
+        if (data && data.ok){ 
+          updateCounts(data.post_id, data); 
+          announce('Agreed with post');
+        }
+        else { 
+          if (likeCountEl) likeCountEl.textContent = String(original); 
+          if (btn) btn.classList.remove('active'); 
+          announce('Could not agree with post');
+        }
+      } catch(err) { 
+        if (likeCountEl) likeCountEl.textContent = String(original); 
+        if (btn) btn.classList.remove('active'); 
+        announce('Network error');
+      }
       finally { setBusy(btn, false); }
       return;
     }
@@ -93,9 +112,20 @@
       setBusy(btn, true);
       try {
         const data = await ajaxSubmit(form);
-        if (data && data.ok){ updateCounts(data.post_id, data); }
-        else { if (dislikeCountEl) dislikeCountEl.textContent = String(original); if (btn) btn.classList.remove('active'); }
-      } catch(err) { if (dislikeCountEl) dislikeCountEl.textContent = String(original); if (btn) btn.classList.remove('active'); }
+        if (data && data.ok){ 
+          updateCounts(data.post_id, data); 
+          announce('Disagreed with post');
+        }
+        else { 
+          if (dislikeCountEl) dislikeCountEl.textContent = String(original); 
+          if (btn) btn.classList.remove('active'); 
+          announce('Could not disagree with post');
+        }
+      } catch(err) { 
+        if (dislikeCountEl) dislikeCountEl.textContent = String(original); 
+        if (btn) btn.classList.remove('active'); 
+        announce('Network error');
+      }
       finally { setBusy(btn, false); }
       return;
     }
@@ -111,6 +141,9 @@
           // reset textarea
           const ta = form.querySelector('textarea');
           if (ta) ta.value = '';
+          announce('Comment added');
+        } else {
+          announce('Could not add comment');
         }
       } catch(err) { /* noop */ }
       return;
